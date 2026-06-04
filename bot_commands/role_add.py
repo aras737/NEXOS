@@ -1,0 +1,16 @@
+import discord
+from discord import app_commands
+
+from core.embeds import make_embed
+
+
+def register(bot):
+    @bot.tree.command(name="role-add", description="Uyeye rol verir.")
+    @app_commands.guild_only()
+    @app_commands.default_permissions(manage_roles=True)
+    @app_commands.checks.bot_has_permissions(manage_roles=True)
+    async def role_add(interaction, member: discord.Member, role: discord.Role):
+        await member.add_roles(role, reason=f"{interaction.user} tarafindan rol verildi")
+        await interaction.response.send_message(
+            embed=make_embed("Rol verildi", f"{member.mention} uyesine {role.mention} rolu verildi.", 0x2ECC71)
+        )
