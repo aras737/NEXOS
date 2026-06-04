@@ -10,11 +10,14 @@ Render Environment alaninda bu degerler bulunmali:
 DISCORD_TOKEN=bot_tokenin
 GUILD_ID=sunucu_id
 VOICE_CHANNEL_ID=opsiyonel_ses_kanali_id
+NEXOS_DATA_DIR=/var/data/nexos
 ```
 
 `DISCORD_TOKEN` repoya yazilmaz. Render'da env olarak kalir.
 
 `GUILD_ID` yazilirsa slash komutlar o sunucuda hemen gorunur. Bos birakilirsa global yuklenir ve Discord tarafinda gorunmesi zaman alabilir.
+
+Uyari verileri `NEXOS_DATA_DIR/warnings.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
 
 ## Lokal Calistirma
 
@@ -29,6 +32,7 @@ python bot.py
 - `bot_commands/` her slash komut icin ayri dosya icerir.
 - `core/` ortak config, hata, embed, storage ve yetki yardimcilarini icerir.
 - `render.yaml` Render build/start ayarlarini icerir.
+- `warnings.json` repoya yazilmaz; Render disk altinda saklanir.
 
 ## Slash Komutlar
 

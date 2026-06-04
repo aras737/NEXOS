@@ -2,9 +2,13 @@ services:
   - type: web
     name: nexos
     env: python
-    plan: free
+    plan: starter
     buildCommand: pip install -r requirements.txt
     startCommand: python bot.py
+    disk:
+      name: nexos-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: DISCORD_TOKEN
         sync: false
@@ -12,3 +16,5 @@ services:
         sync: false
       - key: VOICE_CHANNEL_ID
         sync: false
+      - key: NEXOS_DATA_DIR
+        value: /var/data/nexos

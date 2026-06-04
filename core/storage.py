@@ -1,12 +1,26 @@
 import json
+import shutil
 from pathlib import Path
 
+from core.config import NEXOS_DATA_DIR
 
-DATA_DIR = Path("data")
+
+LEGACY_DATA_DIR = Path("data")
+DATA_DIR = NEXOS_DATA_DIR
 WARNINGS_FILE = DATA_DIR / "warnings.json"
+LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
+
+
+def migrate_legacy_warnings():
+    if WARNINGS_FILE.exists() or not LEGACY_WARNINGS_FILE.exists():
+        return
+
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(LEGACY_WARNINGS_FILE, WARNINGS_FILE)
 
 
 def load_warnings():
+    migrate_legacy_warnings()
     if not WARNINGS_FILE.exists():
         return {}
     with WARNINGS_FILE.open("r", encoding="utf-8") as file:
@@ -14,7 +28,7 @@ def load_warnings():
 
 
 def save_warnings(data):
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     with WARNINGS_FILE.open("w", encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
 
