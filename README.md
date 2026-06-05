@@ -48,6 +48,9 @@ python bot.py
 - `/ping` bot gecikmesini gosterir.
 - `/server` sunucu bilgilerini gosterir.
 - `/user` uye bilgilerini gosterir.
+- `/profile` ozel NEXOS profil kartini gosterir.
+- `/avatar` uye avatarini gosterir.
+- `/botinfo` bot sistem bilgisini gosterir.
 - `/balance` ekonomi bakiyesini gosterir.
 - `/daily` gunluk ekonomi odulunu alir.
 - `/work` calisip kredi kazanir.
@@ -55,6 +58,10 @@ python bot.py
 - `/withdraw` bankadaki parayi cuzdana ceker.
 - `/pay` baska uyeye para gonderir.
 - `/leaderboard` ekonomi liderlik tablosunu gosterir.
+- `/eco-add` yetkili olarak kredi ekler. Yetki: Administrator.
+- `/eco-remove` yetkili olarak kredi siler. Yetki: Administrator.
+- `/eco-set` yetkili olarak bakiyeyi ayarlar. Yetki: Administrator.
+- `/eco-reset` yetkili olarak ekonomi hesabini sifirlar. Yetki: Administrator.
 - `/clear` mesaj siler. Yetki: Manage Messages.
 - `/kick` uyeyi atar. Yetki: Kick Members.
 - `/ban` uyeyi banlar. Yetki: Ban Members.

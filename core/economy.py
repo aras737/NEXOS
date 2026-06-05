@@ -145,6 +145,42 @@ def transfer(guild_id, sender_id, receiver_id, amount):
     return True, sender.copy(), receiver.copy()
 
 
+def add_money(guild_id, user_id, amount, target="wallet"):
+    data = load_economy()
+    account = account_data(data, guild_id, user_id)
+    account[target] += amount
+    save_economy(data)
+    return account.copy()
+
+
+def remove_money(guild_id, user_id, amount, target="wallet"):
+    data = load_economy()
+    account = account_data(data, guild_id, user_id)
+    removed = min(amount, account[target])
+    account[target] -= removed
+    save_economy(data)
+    return removed, account.copy()
+
+
+def set_money(guild_id, user_id, wallet=None, bank=None):
+    data = load_economy()
+    account = account_data(data, guild_id, user_id)
+    if wallet is not None:
+        account["wallet"] = max(0, wallet)
+    if bank is not None:
+        account["bank"] = max(0, bank)
+    save_economy(data)
+    return account.copy()
+
+
+def reset_account(guild_id, user_id):
+    data = load_economy()
+    guild = guild_data(data, guild_id)
+    guild[str(user_id)] = empty_account()
+    save_economy(data)
+    return guild[str(user_id)].copy()
+
+
 def get_leaderboard(guild_id, limit=10):
     data = load_economy()
     guild = guild_data(data, guild_id)

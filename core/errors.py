@@ -68,24 +68,41 @@ async def handle_app_command_error(interaction, error):
     detail = error_detail(error)
 
     if isinstance(error, app_commands.MissingPermissions):
-        message = "Bu komut icin yetkin yok."
+        message = "Bu komut icin gerekli yetkin yok."
         location = "Kullanici yetkisi kontrolu"
     elif isinstance(error, app_commands.BotMissingPermissions):
-        message = "Bu islem icin botun gerekli izni yok."
+        message = "Bu islem icin botun gerekli Discord izni yok."
         location = "Bot yetkisi kontrolu"
+    elif isinstance(error, app_commands.CommandOnCooldown):
+        message = f"Bu komutu tekrar kullanmak icin {error.retry_after:.1f} saniye beklemelisin."
+        location = "Komut cooldown kontrolu"
+    elif isinstance(error, app_commands.CheckFailure):
+        message = "Bu komut icin kontrol basarisiz oldu. Yetki, kanal veya bot iznini kontrol et."
+        location = "Komut check kontrolu"
+    elif isinstance(error, app_commands.TransformerError):
+        message = "Komut parametrelerinden biri gecersiz. Secenekleri tekrar kontrol et."
+        location = "Komut parametre donusumu"
     else:
         original = getattr(error, "original", error)
-        message = "Komut calisirken hata olustu. Detayi DM olarak gonderdim."
+        if original.__class__.__name__ == "HTTPException":
+            message = "Discord API istegi basarisiz oldu. Detayi DM ve log kanalina gonderdim."
+        else:
+            message = "Komut calisirken beklenmeyen hata olustu. Detayi DM ve log kanalina gonderdim."
         location = traceback_source(error)
         print("".join(traceback.format_exception(type(original), original, original.__traceback__)))
 
+    dm_description = (
+        f"{name} komutunda hata yakalandi.\n"
+        "Bu rapor komutu duzeltmek icin gereken teknik bilgiyi icerir."
+    )
     dm_sent = await send_dm_error(
         interaction,
-        "NEXOS Komut Hatasi",
-        f"{name} komutunda hata yakalandi.",
+        "NEXOS Hata Raporu",
+        dm_description,
         [
             ("Komut", name),
             ("Hata", detail),
+            ("Kullanici Mesaji", message),
             ("Komut Dosyasi", command_source(interaction)),
             ("Hatanin Geldigi Yer", location),
             ("Kullanan", f"{interaction.user} ({interaction.user.id})")
