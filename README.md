@@ -40,6 +40,7 @@ python bot.py
 ## Slash Komutlar
 
 - `/help` komut listesini gosterir.
+- `/invite` bot davet linkini ve gerekli yetkileri gosterir.
 - `/ping` bot gecikmesini gosterir.
 - `/server` sunucu bilgilerini gosterir.
 - `/user` uye bilgilerini gosterir.
@@ -79,3 +80,23 @@ Botun duzgun calismasi icin su intentleri ac:
 - Server Members Intent
 
 Moderasyon komutlari icin bot rolunu, islem yapacagi uyelerin rollerinden daha yukari tasi.
+
+## Bot Davet Yetkileri
+
+Botu `/invite` komutunun verdigi linkle yeniden davet edebilirsin. Link su yetkileri ister:
+
+- View Channels
+- Send Messages
+- Embed Links
+- Read Message History
+- Use Application Commands
+- Manage Messages
+- Manage Channels
+- Manage Roles
+- Kick Members
+- Ban Members
+- Moderate Members
+- Connect
+- Speak
+
+Permission bit degeri: `1101930785814`

@@ -5,6 +5,7 @@ from core.embeds import make_embed
 
 COMMAND_LINES = [
     "`/help` komut listesini gosterir.",
+    "`/invite` bot davet linkini ve gerekli yetkileri gosterir.",
     "`/ping` bot gecikmesini gosterir.",
     "`/server` sunucu bilgilerini gosterir.",
     "`/user` uye bilgilerini gosterir.",

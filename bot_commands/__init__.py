@@ -7,6 +7,7 @@ from bot_commands import (
     deposit,
     embed,
     help,
+    invite,
     kick,
     kurulum,
     leaderboard,
@@ -32,6 +33,7 @@ from bot_commands import (
 
 COMMAND_MODULES = [
     help,
+    invite,
     ping,
     server,
     user,
