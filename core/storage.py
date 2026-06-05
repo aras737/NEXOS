@@ -11,6 +11,7 @@ WARNINGS_FILE = DATA_DIR / "warnings.json"
 ECONOMY_FILE = DATA_DIR / "economy.json"
 SETTINGS_FILE = DATA_DIR / "settings.json"
 LOGS_FILE = DATA_DIR / "logs.jsonl"
+TICKETS_FILE = DATA_DIR / "tickets.json"
 LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
 
 
@@ -104,3 +105,57 @@ def append_log(event):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     with LOGS_FILE.open("a", encoding="utf-8") as file:
         file.write(json.dumps(event, ensure_ascii=False) + "\n")
+
+
+def load_tickets():
+    if not TICKETS_FILE.exists():
+        return {}
+    with TICKETS_FILE.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def save_tickets(data):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with TICKETS_FILE.open("w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
+
+def guild_tickets(data, guild_id):
+    guild_key = str(guild_id)
+    data.setdefault(guild_key, {})
+    return data[guild_key]
+
+
+def create_ticket_record(guild_id, channel_id, owner_id, subject):
+    data = load_tickets()
+    tickets = guild_tickets(data, guild_id)
+    tickets[str(channel_id)] = {
+        "owner_id": int(owner_id),
+        "subject": subject,
+        "status": "open"
+    }
+    save_tickets(data)
+    return tickets[str(channel_id)]
+
+
+def get_ticket_record(guild_id, channel_id):
+    data = load_tickets()
+    return data.get(str(guild_id), {}).get(str(channel_id))
+
+
+def close_ticket_record(guild_id, channel_id):
+    data = load_tickets()
+    ticket = data.get(str(guild_id), {}).get(str(channel_id))
+    if ticket:
+        ticket["status"] = "closed"
+        save_tickets(data)
+    return ticket
+
+
+def find_open_ticket_for_user(guild_id, owner_id):
+    data = load_tickets()
+    tickets = data.get(str(guild_id), {})
+    for channel_id, ticket in tickets.items():
+        if ticket.get("owner_id") == int(owner_id) and ticket.get("status") == "open":
+            return int(channel_id), ticket
+    return None, None

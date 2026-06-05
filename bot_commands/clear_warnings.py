@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 from core.storage import clear_user_warnings
 
 
@@ -15,4 +16,14 @@ def register(bot):
         await interaction.response.send_message(
             embed=make_embed("Uyarilar temizlendi", f"{member.mention} uyarilari temizlendi.", 0x2ECC71),
             ephemeral=True
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Uyarilar Temizlendi",
+            f"{member} uyarilari temizlendi.",
+            0x2ECC71,
+            [
+                ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
+                ("Uye", f"{member} ({member.id})")
+            ]
         )

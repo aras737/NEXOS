@@ -4,6 +4,7 @@ import discord
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 from core.moderation import can_moderate, send_error
 
 
@@ -25,4 +26,15 @@ def register(bot):
         await member.timeout(datetime.timedelta(minutes=minutes), reason=reason)
         await interaction.response.send_message(
             embed=make_embed("Uye susturuldu", f"{member.mention} {minutes} dakika susturuldu.", 0x2ECC71)
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Timeout",
+            f"{member} {minutes} dakika susturuldu.",
+            0xE67E22,
+            [
+                ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
+                ("Uye", f"{member} ({member.id})"),
+                ("Sebep", reason)
+            ]
         )

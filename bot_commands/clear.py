@@ -1,6 +1,7 @@
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 
 
 def register(bot):
@@ -13,4 +14,14 @@ def register(bot):
         await interaction.response.send_message(
             embed=make_embed("Mesajlar silindi", f"{len(deleted)} mesaj silindi.", 0x2ECC71),
             ephemeral=True
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Mesaj Temizleme",
+            f"{len(deleted)} mesaj silindi.",
+            0xE67E22,
+            [
+                ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
+                ("Kanal", f"{interaction.channel} ({interaction.channel_id})")
+            ]
         )

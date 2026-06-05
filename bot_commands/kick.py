@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 from core.moderation import can_moderate, send_error
 
 
@@ -18,4 +19,15 @@ def register(bot):
         await member.kick(reason=reason)
         await interaction.response.send_message(
             embed=make_embed("Uye atildi", f"{member.mention} sunucudan atildi.\nSebep: {reason}", 0x2ECC71)
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Kick",
+            f"{member} sunucudan atildi.",
+            0xE67E22,
+            [
+                ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
+                ("Uye", f"{member} ({member.id})"),
+                ("Sebep", reason)
+            ]
         )

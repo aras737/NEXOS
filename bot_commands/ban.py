@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 from core.moderation import can_moderate, send_error
 
 
@@ -18,4 +19,15 @@ def register(bot):
         await member.ban(reason=reason, delete_message_days=0)
         await interaction.response.send_message(
             embed=make_embed("Uye banlandi", f"{member} banlandi.\nSebep: {reason}", 0x2ECC71)
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Ban",
+            f"{member} banlandi.",
+            0xE74C3C,
+            [
+                ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
+                ("Uye", f"{member} ({member.id})"),
+                ("Sebep", reason)
+            ]
         )

@@ -1,6 +1,7 @@
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 
 
 def register(bot):
@@ -13,4 +14,15 @@ def register(bot):
         await interaction.guild.unban(user, reason=reason)
         await interaction.response.send_message(
             embed=make_embed("Ban kaldirildi", f"{user} bani kaldirildi.", 0x2ECC71)
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Unban",
+            f"{user} bani kaldirildi.",
+            0x2ECC71,
+            [
+                ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
+                ("Kullanici", f"{user} ({user.id})"),
+                ("Sebep", reason)
+            ]
         )

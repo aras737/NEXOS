@@ -45,6 +45,7 @@ python bot.py
 - `/help` komut listesini gosterir.
 - `/invite` bot davet linkini ve gerekli yetkileri gosterir.
 - `/set-log-channel` log kanalini ayarlar. Yetki: Administrator.
+- `/set-auto-role` yeni gelenlere otomatik rol ayarlar. Yetki: Administrator.
 - `/ping` bot gecikmesini gosterir.
 - `/server` sunucu bilgilerini gosterir.
 - `/user` uye bilgilerini gosterir.
@@ -62,6 +63,9 @@ python bot.py
 - `/eco-remove` yetkili olarak kredi siler. Yetki: Administrator.
 - `/eco-set` yetkili olarak bakiyeyi ayarlar. Yetki: Administrator.
 - `/eco-reset` yetkili olarak ekonomi hesabini sifirlar. Yetki: Administrator.
+- `/ticket-panel` ticket paneli gonderir. Yetki: Administrator.
+- `/ticket-open` ticket acar.
+- `/ticket-close` ticket kapatir.
 - `/clear` mesaj siler. Yetki: Manage Messages.
 - `/kick` uyeyi atar. Yetki: Kick Members.
 - `/ban` uyeyi banlar. Yetki: Ban Members.
@@ -91,6 +95,9 @@ Log sistemi sunlari kaydeder:
 - Uye giris/cikis
 - Bot baslatma
 - `/say` kullanimlari ve reddedilen denemeler
+- Ticket acma/kapatma
+- Oto rol verme/hata
+- Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 
 Loglar hem `NEXOS_DATA_DIR/logs.jsonl` dosyasina yazilir hem de ayarlanmis log kanalina embed olarak gonderilir.
 

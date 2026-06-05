@@ -1,6 +1,7 @@
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 
 
 def register(bot):
@@ -12,4 +13,11 @@ def register(bot):
         await interaction.channel.set_permissions(interaction.guild.default_role, send_messages=None)
         await interaction.response.send_message(
             embed=make_embed("Kanal acildi", "Bu kanalda mesaj gonderme izni normale dondu.", 0x2ECC71)
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Kanal Acildi",
+            f"{interaction.channel} kilidi acildi.",
+            0x2ECC71,
+            [("Yetkili", f"{interaction.user} ({interaction.user.id})")]
         )

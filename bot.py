@@ -2,11 +2,13 @@ import discord
 from discord.ext import commands
 
 from bot_commands import register_all_commands
+from core.auto_role import apply_auto_role
 from core.config import DISCORD_TOKEN, GUILD_ID, VOICE_CHANNEL_ID
 from core.embeds import make_embed
 from core.errors import handle_app_command_error
 from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
+from core.tickets import TicketCloseView, TicketPanelView
 from core.web_server import start_web_server
 
 
@@ -20,6 +22,8 @@ intents.voice_states = True
 
 class NexosBot(commands.Bot):
     async def setup_hook(self):
+        self.add_view(TicketPanelView())
+        self.add_view(TicketCloseView())
         register_all_commands(self)
 
         if GUILD_ID:
@@ -88,6 +92,7 @@ async def on_member_join(member):
         0x2ECC71,
         [("Uye", f"{member} ({member.id})")]
     )
+    await apply_auto_role(member)
 
     channel = member.guild.system_channel
     if not channel:

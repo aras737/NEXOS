@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 
 
 def register(bot):
@@ -13,4 +14,15 @@ def register(bot):
         await member.add_roles(role, reason=f"{interaction.user} tarafindan rol verildi")
         await interaction.response.send_message(
             embed=make_embed("Rol verildi", f"{member.mention} uyesine {role.mention} rolu verildi.", 0x2ECC71)
+        )
+        await log_event(
+            interaction.guild,
+            "Moderasyon: Rol Verildi",
+            f"{member} uyesine {role} rolu verildi.",
+            0x2ECC71,
+            [
+                ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
+                ("Uye", f"{member} ({member.id})"),
+                ("Rol", f"{role} ({role.id})")
+            ]
         )

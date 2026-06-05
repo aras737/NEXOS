@@ -25,9 +25,13 @@ from bot_commands import (
     role_remove,
     say,
     set_log_channel,
+    set_auto_role,
     server,
     slowmode,
     timeout,
+    ticket_close,
+    ticket_open,
+    ticket_panel,
     unban,
     unlock,
     untimeout,
@@ -75,7 +79,11 @@ COMMAND_MODULES = [
     slowmode,
     say,
     set_log_channel,
+    set_auto_role,
     embed,
+    ticket_panel,
+    ticket_open,
+    ticket_close,
     kurulum
 ]
 
