@@ -18,5 +18,7 @@ services:
         sync: false
       - key: MEMBER_COUNT_CHANNEL_ID
         value: 1511798754980663492
+      - key: LOG_CHANNEL_ID
+        sync: false
       - key: NEXOS_DATA_DIR
         value: /var/data/nexos

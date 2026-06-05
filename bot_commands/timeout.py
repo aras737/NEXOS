@@ -11,7 +11,7 @@ def register(bot):
     @bot.tree.command(name="timeout", description="Uyeyi gecici susturur.")
     @app_commands.guild_only()
     @app_commands.default_permissions(moderate_members=True)
-    @app_commands.checks.bot_has_permissions(moderate_members=True)
+    @app_commands.checks.bot_has_permissions(moderate_members=True, embed_links=True)
     async def timeout(
         interaction,
         member: discord.Member,

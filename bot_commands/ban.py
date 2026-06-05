@@ -9,7 +9,7 @@ def register(bot):
     @bot.tree.command(name="ban", description="Uyeyi banlar.")
     @app_commands.guild_only()
     @app_commands.default_permissions(ban_members=True)
-    @app_commands.checks.bot_has_permissions(ban_members=True)
+    @app_commands.checks.bot_has_permissions(ban_members=True, embed_links=True)
     async def ban(interaction, member: discord.Member, reason: str = "Sebep belirtilmedi"):
         issue = can_moderate(interaction, member)
         if issue:

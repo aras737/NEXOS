@@ -9,6 +9,7 @@ def register(bot):
     @bot.tree.command(name="warnings", description="Uyenin uyarilarini listeler.")
     @app_commands.guild_only()
     @app_commands.default_permissions(moderate_members=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def warnings_command(interaction, member: discord.Member):
         warnings = get_warnings(interaction.guild.id, member.id)
         if not warnings:

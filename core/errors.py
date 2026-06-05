@@ -4,6 +4,7 @@ import traceback
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.logging import log_event
 
 
 def command_name(interaction):
@@ -34,6 +35,14 @@ def traceback_source(error):
     return f"{last.filename}:{last.lineno} -> {last.name}"
 
 
+def error_detail(error):
+    original = getattr(error, "original", error)
+    detail = f"{type(original).__name__}: {original}"
+    if detail.strip() == f"{type(original).__name__}:":
+        return type(original).__name__
+    return detail
+
+
 async def send_interaction_error(interaction, message):
     embed = make_embed("Hata", message, 0xE74C3C)
     if interaction.response.is_done():
@@ -56,6 +65,7 @@ async def send_dm_error(interaction, title, description, fields):
 
 async def handle_app_command_error(interaction, error):
     name = command_name(interaction)
+    detail = error_detail(error)
 
     if isinstance(error, app_commands.MissingPermissions):
         message = "Bu komut icin yetkin yok."
@@ -75,7 +85,20 @@ async def handle_app_command_error(interaction, error):
         f"{name} komutunda hata yakalandi.",
         [
             ("Komut", name),
-            ("Hata", message),
+            ("Hata", detail),
+            ("Komut Dosyasi", command_source(interaction)),
+            ("Hatanin Geldigi Yer", location),
+            ("Kullanan", f"{interaction.user} ({interaction.user.id})")
+        ]
+    )
+
+    await log_event(
+        interaction.guild,
+        "Komut Hatasi",
+        f"{name} komutunda hata yakalandi.",
+        0xE74C3C,
+        [
+            ("Hata", detail),
             ("Komut Dosyasi", command_source(interaction)),
             ("Hatanin Geldigi Yer", location),
             ("Kullanan", f"{interaction.user} ({interaction.user.id})")

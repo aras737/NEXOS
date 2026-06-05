@@ -8,7 +8,7 @@ def register(bot):
     @bot.tree.command(name="untimeout", description="Uyenin susturmasini kaldirir.")
     @app_commands.guild_only()
     @app_commands.default_permissions(moderate_members=True)
-    @app_commands.checks.bot_has_permissions(moderate_members=True)
+    @app_commands.checks.bot_has_permissions(moderate_members=True, embed_links=True)
     async def untimeout(interaction, member: discord.Member, reason: str = "Sebep belirtilmedi"):
         await member.timeout(None, reason=reason)
         await interaction.response.send_message(

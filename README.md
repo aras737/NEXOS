@@ -11,6 +11,7 @@ DISCORD_TOKEN=bot_tokenin
 GUILD_ID=sunucu_id
 VOICE_CHANNEL_ID=opsiyonel_ses_kanali_id
 MEMBER_COUNT_CHANNEL_ID=1511798754980663492
+LOG_CHANNEL_ID=opsiyonel_log_kanali_id
 NEXOS_DATA_DIR=/var/data/nexos
 ```
 
@@ -21,6 +22,8 @@ NEXOS_DATA_DIR=/var/data/nexos
 Uyari verileri `NEXOS_DATA_DIR/warnings.json`, ekonomi verileri `NEXOS_DATA_DIR/economy.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
 
 `MEMBER_COUNT_CHANNEL_ID` verilen kanal adini otomatik `uyeler-<sayi>` formatinda gunceller. Botun Manage Channels yetkisi olmalidir.
+
+`LOG_CHANNEL_ID` opsiyoneldir. Bos birakirsan `/set-log-channel` komutu ile Discord icinden ayarlayabilirsin. Log ayari persistent diske yazilir.
 
 ## Lokal Calistirma
 
@@ -35,12 +38,13 @@ python bot.py
 - `bot_commands/` her slash komut icin ayri dosya icerir.
 - `core/` ortak config, hata, embed, storage ve yetki yardimcilarini icerir.
 - `render.yaml` Render build/start ayarlarini icerir.
-- `warnings.json` ve `economy.json` repoya yazilmaz; Render disk altinda saklanir.
+- `warnings.json`, `economy.json`, `settings.json` ve `logs.jsonl` repoya yazilmaz; Render disk altinda saklanir.
 
 ## Slash Komutlar
 
 - `/help` komut listesini gosterir.
 - `/invite` bot davet linkini ve gerekli yetkileri gosterir.
+- `/set-log-channel` log kanalini ayarlar. Yetki: Administrator.
 - `/ping` bot gecikmesini gosterir.
 - `/server` sunucu bilgilerini gosterir.
 - `/user` uye bilgilerini gosterir.
@@ -65,13 +69,23 @@ python bot.py
 - `/lock` kanali kilitler. Yetki: Manage Channels.
 - `/unlock` kanal kilidini acar. Yetki: Manage Channels.
 - `/slowmode` yavas modu ayarlar. Yetki: Manage Channels.
-- `/say` bot adina mesaj gonderir. Yetki: Manage Messages.
+- `/say` bot adina mesaj gonderir. Sadece sunucu sahibi.
 - `/embed` embed mesaj gonderir. Yetki: Manage Messages.
 - `/kurulum` temel kanal kurulumunu yapar. Yetki: Administrator.
 
 ## Hata Bildirimi
 
-Bir slash komut hata verirse bot komutu kullanan kisiye DM atar. DM icinde komut adi, hata mesaji, komut dosyasi ve hatanin geldigi dosya/satir bilgisi bulunur.
+Bir slash komut hata verirse bot komutu kullanan kisiye DM atar. DM icinde komut adi, gercek hata mesaji, komut dosyasi ve hatanin geldigi dosya/satir bilgisi bulunur.
+
+Log sistemi sunlari kaydeder:
+
+- Komut kullanimlari
+- Komut hatalari
+- Uye giris/cikis
+- Bot baslatma
+- `/say` kullanimlari ve reddedilen denemeler
+
+Loglar hem `NEXOS_DATA_DIR/logs.jsonl` dosyasina yazilir hem de ayarlanmis log kanalina embed olarak gonderilir.
 
 ## Discord Developer Portal
 

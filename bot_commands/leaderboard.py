@@ -7,6 +7,8 @@ from core.embeds import make_embed
 def register(bot):
     @bot.tree.command(name="leaderboard", description="Ekonomi liderlik tablosunu gosterir.")
     @app_commands.guild_only()
+    @app_commands.default_permissions(send_messages=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def leaderboard(interaction):
         rows = get_leaderboard(interaction.guild.id)
 

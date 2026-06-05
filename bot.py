@@ -5,6 +5,7 @@ from bot_commands import register_all_commands
 from core.config import DISCORD_TOKEN, GUILD_ID, VOICE_CHANNEL_ID
 from core.embeds import make_embed
 from core.errors import handle_app_command_error
+from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
 from core.web_server import start_web_server
 
@@ -44,6 +45,14 @@ async def on_ready():
         )
     )
 
+    for guild in bot.guilds:
+        await log_event(
+            guild,
+            "Bot Aktif",
+            "NEXOS baslatildi ve slash komut sistemi hazir.",
+            0x2ECC71
+        )
+
     if not VOICE_CHANNEL_ID:
         return
 
@@ -72,6 +81,14 @@ async def on_member_join(member):
     except Exception as error:
         print(f"Uye sayaci guncellenirken hata olustu: {error}")
 
+    await log_event(
+        member.guild,
+        "Uye Katildi",
+        f"{member.mention} sunucuya katildi.",
+        0x2ECC71,
+        [("Uye", f"{member} ({member.id})")]
+    )
+
     channel = member.guild.system_channel
     if not channel:
         return
@@ -91,6 +108,19 @@ async def on_member_remove(member):
         await update_member_count_channel(member.guild)
     except Exception as error:
         print(f"Uye sayaci guncellenirken hata olustu: {error}")
+
+    await log_event(
+        member.guild,
+        "Uye Ayrildi",
+        f"{member} sunucudan ayrildi.",
+        0xE67E22,
+        [("Uye", f"{member} ({member.id})")]
+    )
+
+
+@bot.event
+async def on_interaction(interaction):
+    await log_interaction(interaction)
 
 
 @bot.tree.error

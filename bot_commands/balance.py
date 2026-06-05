@@ -8,6 +8,8 @@ from core.embeds import make_embed
 def register(bot):
     @bot.tree.command(name="balance", description="Ekonomi bakiyesini gosterir.")
     @app_commands.guild_only()
+    @app_commands.default_permissions(send_messages=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def balance(interaction, member: discord.Member | None = None):
         member = member or interaction.user
         account = get_account(interaction.guild.id, member.id)

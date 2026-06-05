@@ -6,6 +6,7 @@ from core.embeds import make_embed
 COMMAND_LINES = [
     "`/help` komut listesini gosterir.",
     "`/invite` bot davet linkini ve gerekli yetkileri gosterir.",
+    "`/set-log-channel` log kanalini ayarlar.",
     "`/ping` bot gecikmesini gosterir.",
     "`/server` sunucu bilgilerini gosterir.",
     "`/user` uye bilgilerini gosterir.",
@@ -30,7 +31,7 @@ COMMAND_LINES = [
     "`/lock` kanali kilitler.",
     "`/unlock` kanal kilidini acar.",
     "`/slowmode` yavas modu ayarlar.",
-    "`/say` bot adina mesaj gonderir.",
+    "`/say` bot adina mesaj gonderir. Sadece sunucu sahibi.",
     "`/embed` embed mesaj gonderir.",
     "`/kurulum` temel kanal kurulumunu yapar."
 ]
@@ -39,6 +40,8 @@ COMMAND_LINES = [
 def register(bot):
     @bot.tree.command(name="help", description="Komut listesini gosterir.")
     @app_commands.guild_only()
+    @app_commands.default_permissions(send_messages=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def help_command(interaction):
         await interaction.response.send_message(
             embed=make_embed("NEXOS Slash Komutlari", "\n".join(COMMAND_LINES)),

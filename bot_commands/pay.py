@@ -8,6 +8,8 @@ from core.embeds import make_embed
 def register(bot):
     @bot.tree.command(name="pay", description="Baska bir uyeye cuzdanindan para gonderir.")
     @app_commands.guild_only()
+    @app_commands.default_permissions(send_messages=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def pay(interaction, member: discord.Member, amount: app_commands.Range[int, 1, 1000000000]):
         if member.bot:
             await interaction.response.send_message(

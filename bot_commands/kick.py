@@ -9,7 +9,7 @@ def register(bot):
     @bot.tree.command(name="kick", description="Uyeyi sunucudan atar.")
     @app_commands.guild_only()
     @app_commands.default_permissions(kick_members=True)
-    @app_commands.checks.bot_has_permissions(kick_members=True)
+    @app_commands.checks.bot_has_permissions(kick_members=True, embed_links=True)
     async def kick(interaction, member: discord.Member, reason: str = "Sebep belirtilmedi"):
         issue = can_moderate(interaction, member)
         if issue:

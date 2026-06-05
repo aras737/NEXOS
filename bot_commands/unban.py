@@ -7,7 +7,7 @@ def register(bot):
     @bot.tree.command(name="unban", description="ID ile ban kaldirir.")
     @app_commands.guild_only()
     @app_commands.default_permissions(ban_members=True)
-    @app_commands.checks.bot_has_permissions(ban_members=True)
+    @app_commands.checks.bot_has_permissions(ban_members=True, embed_links=True)
     async def unban(interaction, user_id: str, reason: str = "Sebep belirtilmedi"):
         user = await bot.fetch_user(int(user_id))
         await interaction.guild.unban(user, reason=reason)

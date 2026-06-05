@@ -9,6 +9,8 @@ LEGACY_DATA_DIR = Path("data")
 DATA_DIR = NEXOS_DATA_DIR
 WARNINGS_FILE = DATA_DIR / "warnings.json"
 ECONOMY_FILE = DATA_DIR / "economy.json"
+SETTINGS_FILE = DATA_DIR / "settings.json"
+LOGS_FILE = DATA_DIR / "logs.jsonl"
 LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
 
 
@@ -70,3 +72,35 @@ def save_economy(data):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     with ECONOMY_FILE.open("w", encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
+
+
+def load_settings():
+    if not SETTINGS_FILE.exists():
+        return {}
+    with SETTINGS_FILE.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def save_settings(data):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with SETTINGS_FILE.open("w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
+
+def get_guild_setting(guild_id, key, default=None):
+    data = load_settings()
+    return data.get(str(guild_id), {}).get(key, default)
+
+
+def set_guild_setting(guild_id, key, value):
+    data = load_settings()
+    guild_key = str(guild_id)
+    data.setdefault(guild_key, {})
+    data[guild_key][key] = value
+    save_settings(data)
+
+
+def append_log(event):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with LOGS_FILE.open("a", encoding="utf-8") as file:
+        file.write(json.dumps(event, ensure_ascii=False) + "\n")

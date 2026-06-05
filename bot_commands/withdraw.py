@@ -8,6 +8,8 @@ from core.embeds import make_embed
 def register(bot):
     @bot.tree.command(name="withdraw", description="Bankadaki parayi cuzdanina ceker.")
     @app_commands.guild_only()
+    @app_commands.default_permissions(send_messages=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def withdraw(interaction, amount: app_commands.Range[int, 1, 1000000000]):
         success, account = withdraw_money(interaction.guild.id, interaction.user.id, amount)
 

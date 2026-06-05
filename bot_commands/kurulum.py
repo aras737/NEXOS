@@ -5,6 +5,7 @@ def register(bot):
     @bot.tree.command(name="kurulum", description="Temel sunucu kanal kurulumunu yapar.")
     @app_commands.guild_only()
     @app_commands.default_permissions(administrator=True)
+    @app_commands.checks.bot_has_permissions(manage_channels=True)
     async def kurulum(interaction):
         guild = interaction.guild
         await interaction.response.defer(thinking=True, ephemeral=True)

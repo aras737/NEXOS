@@ -8,7 +8,7 @@ def register(bot):
     @bot.tree.command(name="role-add", description="Uyeye rol verir.")
     @app_commands.guild_only()
     @app_commands.default_permissions(manage_roles=True)
-    @app_commands.checks.bot_has_permissions(manage_roles=True)
+    @app_commands.checks.bot_has_permissions(manage_roles=True, embed_links=True)
     async def role_add(interaction, member: discord.Member, role: discord.Role):
         await member.add_roles(role, reason=f"{interaction.user} tarafindan rol verildi")
         await interaction.response.send_message(

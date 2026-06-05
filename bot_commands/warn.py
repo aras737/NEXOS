@@ -11,6 +11,7 @@ def register(bot):
     @bot.tree.command(name="warn", description="Uyeye uyari verir.")
     @app_commands.guild_only()
     @app_commands.default_permissions(moderate_members=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def warn(interaction, member: discord.Member, reason: str):
         warnings = add_warning(
             interaction.guild.id,

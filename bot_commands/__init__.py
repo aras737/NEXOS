@@ -17,6 +17,7 @@ from bot_commands import (
     role_add,
     role_remove,
     say,
+    set_log_channel,
     server,
     slowmode,
     timeout,
@@ -59,6 +60,7 @@ COMMAND_MODULES = [
     unlock,
     slowmode,
     say,
+    set_log_channel,
     embed,
     kurulum
 ]

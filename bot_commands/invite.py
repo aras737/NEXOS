@@ -7,6 +7,8 @@ from core.permissions import REQUIRED_PERMISSION_LABELS, invite_url, required_pe
 def register(bot):
     @bot.tree.command(name="invite", description="Bot davet linkini ve gerekli yetkileri gosterir.")
     @app_commands.guild_only()
+    @app_commands.default_permissions(send_messages=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def invite(interaction):
         client_id = interaction.client.user.id
         url = invite_url(client_id)

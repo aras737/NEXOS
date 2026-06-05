@@ -8,6 +8,8 @@ from core.embeds import make_embed
 def register(bot):
     @bot.tree.command(name="work", description="Calisip ekonomi kredisi kazanir.")
     @app_commands.guild_only()
+    @app_commands.default_permissions(send_messages=True)
+    @app_commands.checks.bot_has_permissions(embed_links=True)
     async def work(interaction):
         success, result, account, job = work_job(interaction.guild.id, interaction.user.id)
 
