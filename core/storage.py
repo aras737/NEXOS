@@ -8,6 +8,7 @@ from core.config import NEXOS_DATA_DIR
 LEGACY_DATA_DIR = Path("data")
 DATA_DIR = NEXOS_DATA_DIR
 WARNINGS_FILE = DATA_DIR / "warnings.json"
+ECONOMY_FILE = DATA_DIR / "economy.json"
 LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
 
 
@@ -56,3 +57,16 @@ def clear_user_warnings(guild_id, user_id):
     if guild_key in data and user_key in data[guild_key]:
         data[guild_key][user_key] = []
         save_warnings(data)
+
+
+def load_economy():
+    if not ECONOMY_FILE.exists():
+        return {}
+    with ECONOMY_FILE.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def save_economy(data):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with ECONOMY_FILE.open("w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)

@@ -1,12 +1,17 @@
 from bot_commands import (
     ban,
+    balance,
     clear,
     clear_warnings,
+    daily,
+    deposit,
     embed,
     help,
     kick,
     kurulum,
+    leaderboard,
     lock,
+    pay,
     ping,
     role_add,
     role_remove,
@@ -19,7 +24,9 @@ from bot_commands import (
     untimeout,
     user,
     warn,
-    warnings
+    warnings,
+    withdraw,
+    work
 )
 
 
@@ -28,6 +35,13 @@ COMMAND_MODULES = [
     ping,
     server,
     user,
+    balance,
+    daily,
+    work,
+    deposit,
+    withdraw,
+    pay,
+    leaderboard,
     clear,
     kick,
     ban,

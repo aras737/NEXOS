@@ -5,6 +5,7 @@ from bot_commands import register_all_commands
 from core.config import DISCORD_TOKEN, GUILD_ID, VOICE_CHANNEL_ID
 from core.embeds import make_embed
 from core.errors import handle_app_command_error
+from core.member_counter import update_member_count_channel
 from core.web_server import start_web_server
 
 
@@ -57,9 +58,20 @@ async def on_ready():
     except Exception as error:
         print(f"Ses kanalina baglanirken hata olustu: {error}")
 
+    for guild in bot.guilds:
+        try:
+            await update_member_count_channel(guild)
+        except Exception as error:
+            print(f"Uye sayaci guncellenirken hata olustu: {error}")
+
 
 @bot.event
 async def on_member_join(member):
+    try:
+        await update_member_count_channel(member.guild)
+    except Exception as error:
+        print(f"Uye sayaci guncellenirken hata olustu: {error}")
+
     channel = member.guild.system_channel
     if not channel:
         return
@@ -71,6 +83,14 @@ async def on_member_join(member):
     )
     embed.set_thumbnail(url=member.display_avatar.url)
     await channel.send(embed=embed)
+
+
+@bot.event
+async def on_member_remove(member):
+    try:
+        await update_member_count_channel(member.guild)
+    except Exception as error:
+        print(f"Uye sayaci guncellenirken hata olustu: {error}")
 
 
 @bot.tree.error

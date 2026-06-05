@@ -10,6 +10,7 @@ Render Environment alaninda bu degerler bulunmali:
 DISCORD_TOKEN=bot_tokenin
 GUILD_ID=sunucu_id
 VOICE_CHANNEL_ID=opsiyonel_ses_kanali_id
+MEMBER_COUNT_CHANNEL_ID=1511798754980663492
 NEXOS_DATA_DIR=/var/data/nexos
 ```
 
@@ -17,7 +18,9 @@ NEXOS_DATA_DIR=/var/data/nexos
 
 `GUILD_ID` yazilirsa slash komutlar o sunucuda hemen gorunur. Bos birakilirsa global yuklenir ve Discord tarafinda gorunmesi zaman alabilir.
 
-Uyari verileri `NEXOS_DATA_DIR/warnings.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
+Uyari verileri `NEXOS_DATA_DIR/warnings.json`, ekonomi verileri `NEXOS_DATA_DIR/economy.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
+
+`MEMBER_COUNT_CHANNEL_ID` verilen kanal adini otomatik `uyeler-<sayi>` formatinda gunceller. Botun Manage Channels yetkisi olmalidir.
 
 ## Lokal Calistirma
 
@@ -32,7 +35,7 @@ python bot.py
 - `bot_commands/` her slash komut icin ayri dosya icerir.
 - `core/` ortak config, hata, embed, storage ve yetki yardimcilarini icerir.
 - `render.yaml` Render build/start ayarlarini icerir.
-- `warnings.json` repoya yazilmaz; Render disk altinda saklanir.
+- `warnings.json` ve `economy.json` repoya yazilmaz; Render disk altinda saklanir.
 
 ## Slash Komutlar
 
@@ -40,6 +43,13 @@ python bot.py
 - `/ping` bot gecikmesini gosterir.
 - `/server` sunucu bilgilerini gosterir.
 - `/user` uye bilgilerini gosterir.
+- `/balance` ekonomi bakiyesini gosterir.
+- `/daily` gunluk ekonomi odulunu alir.
+- `/work` calisip kredi kazanir.
+- `/deposit` cuzdandaki parayi bankaya yatirir.
+- `/withdraw` bankadaki parayi cuzdana ceker.
+- `/pay` baska uyeye para gonderir.
+- `/leaderboard` ekonomi liderlik tablosunu gosterir.
 - `/clear` mesaj siler. Yetki: Manage Messages.
 - `/kick` uyeyi atar. Yetki: Kick Members.
 - `/ban` uyeyi banlar. Yetki: Ban Members.
