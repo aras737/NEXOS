@@ -8,6 +8,8 @@ COMMAND_LINES = [
     "`/invite` bot davet linkini ve gerekli yetkileri gosterir.",
     "`/set-log-channel` log kanalini ayarlar.",
     "`/set-auto-role` yeni gelenlere otomatik rol ayarlar.",
+    "`/welcome-settings` giris-cikis kanali ve galaksi mesajlarini ayarlar.",
+    "`/role-panel` butona tiklayanlara rol veren paneli gonderir.",
     "`/ping` bot gecikmesini gosterir.",
     "`/server` sunucu bilgilerini gosterir.",
     "`/user` uye bilgilerini gosterir.",

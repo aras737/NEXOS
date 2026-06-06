@@ -21,6 +21,7 @@ from bot_commands import (
     pay,
     ping,
     profile,
+    role_panel,
     role_add,
     role_remove,
     say,
@@ -36,6 +37,7 @@ from bot_commands import (
     user,
     warn,
     warnings,
+    welcome_settings,
     withdraw,
     work
 )
@@ -50,6 +52,7 @@ COMMAND_MODULES = [
     profile,
     avatar,
     botinfo,
+    role_panel,
     balance,
     daily,
     work,
@@ -80,6 +83,7 @@ COMMAND_MODULES = [
     set_auto_role,
     embed,
     ticket_panel,
+    welcome_settings,
     kurulum
 ]
 

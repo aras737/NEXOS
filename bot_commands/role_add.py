@@ -3,6 +3,7 @@ from discord import app_commands
 
 from core.embeds import make_embed
 from core.logging import log_event
+from core.permissions import member_hierarchy_error, role_hierarchy_error
 
 
 def register(bot):
@@ -11,6 +12,15 @@ def register(bot):
     @app_commands.default_permissions(manage_roles=True)
     @app_commands.checks.bot_has_permissions(manage_roles=True, embed_links=True)
     async def role_add(interaction, member: discord.Member, role: discord.Role):
+        error = member_hierarchy_error(interaction.guild, interaction.user, interaction.guild.me, member)
+        error = error or role_hierarchy_error(interaction.guild, interaction.user, interaction.guild.me, role)
+        if error:
+            await interaction.response.send_message(
+                embed=make_embed("Rol Verilemedi", error, 0xE74C3C),
+                ephemeral=True
+            )
+            return
+
         await member.add_roles(role, reason=f"{interaction.user} tarafindan rol verildi")
         await interaction.response.send_message(
             embed=make_embed("Rol verildi", f"{member.mention} uyesine {role.mention} rolu verildi.", 0x2ECC71)

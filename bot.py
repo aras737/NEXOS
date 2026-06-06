@@ -2,13 +2,13 @@ import discord
 from discord.ext import commands
 
 from bot_commands import register_all_commands
-from core.auto_role import apply_auto_role
+from core.auto_role import ButtonRoleView, apply_auto_role
 from core.config import DISCORD_TOKEN, GUILD_ID, VOICE_CHANNEL_ID
-from core.embeds import make_embed
 from core.errors import handle_app_command_error
 from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
 from core.tickets import TicketControlView, TicketPanelView
+from core.welcome import send_member_leave, send_member_welcome
 from core.web_server import start_web_server
 
 
@@ -22,6 +22,7 @@ intents.voice_states = True
 
 class NexosBot(commands.Bot):
     async def setup_hook(self):
+        self.add_view(ButtonRoleView())
         self.add_view(TicketPanelView())
         self.add_view(TicketControlView())
         register_all_commands(self)
@@ -93,18 +94,7 @@ async def on_member_join(member):
         [("Uye", f"{member} ({member.id})")]
     )
     await apply_auto_role(member)
-
-    channel = member.guild.system_channel
-    if not channel:
-        return
-
-    embed = make_embed(
-        "NEXOS'a Hos Geldin",
-        f"Hos geldin {member.mention}! Sunucuya inis yaptin.",
-        0x9B5DE5
-    )
-    embed.set_thumbnail(url=member.display_avatar.url)
-    await channel.send(embed=embed)
+    await send_member_welcome(member)
 
 
 @bot.event
@@ -121,6 +111,7 @@ async def on_member_remove(member):
         0xE67E22,
         [("Uye", f"{member} ({member.id})")]
     )
+    await send_member_leave(member)
 
 
 @bot.event

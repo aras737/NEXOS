@@ -3,6 +3,7 @@ from discord import app_commands
 
 from core.embeds import make_embed
 from core.logging import log_event
+from core.permissions import role_hierarchy_error, self_assign_role_permission_error
 from core.storage import set_guild_setting
 
 
@@ -26,9 +27,11 @@ def register(bot):
             )
             return
 
-        if role >= interaction.guild.me.top_role:
+        error = role_hierarchy_error(interaction.guild, interaction.user, interaction.guild.me, role)
+        error = error or self_assign_role_permission_error(role, "Oto rol")
+        if error:
             await interaction.response.send_message(
-                embed=make_embed("Rol Sirasi Hatalı", "Bu rol botun rolunden yukarida veya ayni seviyede. Bot bu rolu veremez.", 0xE74C3C),
+                embed=make_embed("Rol Ayarlanamadi", error, 0xE74C3C),
                 ephemeral=True
             )
             return

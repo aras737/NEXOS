@@ -46,6 +46,8 @@ python bot.py
 - `/invite` bot davet linkini ve gerekli yetkileri gosterir.
 - `/set-log-channel` log kanalini ayarlar. Yetki: Administrator.
 - `/set-auto-role` yeni gelenlere otomatik rol ayarlar. Yetki: Administrator.
+- `/welcome-settings` giris-cikis kanali ve galaksi hos geldin/cikis mesajlarini ayarlar. Yetki: Administrator.
+- `/role-panel` butona tiklayanlara rol veren paneli gonderir. Yetki: Administrator.
 - `/ping` bot gecikmesini gosterir.
 - `/server` sunucu bilgilerini gosterir.
 - `/user` uye bilgilerini gosterir.
@@ -98,6 +100,31 @@ Panelden acilan her ticket kanalinda kontrol paneli otomatik gelir:
 
 Ticket yetkilisi olmak icin `Manage Channels` yetkisi yeterlidir. Istersen `/ticket-panel support_role:@rol` ile destek rolunu da ayarlayabilirsin. Kategori icin `/ticket-panel category:kategori` kullanilir.
 
+## Giris-Cikis ve Rol Paneli
+
+`/welcome-settings` komutu giris-cikis kanalini ve NEXOS galaksi temasindaki mesajlari ayarlar. Mesajlarda su degiskenler kullanilabilir:
+
+- `{mention}` uye etiketini yazar.
+- `{user}` kullanici adini yazar.
+- `{name}` sunucudaki gorunen adi yazar.
+- `{server}` sunucu adini yazar.
+- `{count}` guncel uye sayisini yazar.
+
+Ornek:
+
+```text
+/welcome-settings welcome_channel:#hosgeldin leave_channel:#giris-cikis welcome_message:{mention}, NEXOS galaksisine hos geldin. Artik {count}. uyemizsin.
+```
+
+`/set-auto-role` yeni gelen uyelere otomatik rol verir. `/role-panel` ise secilen kanala butonlu rol alma paneli gonderir; butona tiklayan uye ayarlanan rolu alir.
+
+Rol sistemlerinde rol sirasi ve guvenlik kontrolu vardir:
+
+- Botun rolu verilecek rolden yukarida olmalidir.
+- Komutu kullanan yetkilinin rolu verilecek rolden yukarida olmalidir.
+- Butonla alinacak rol Administrator, Manage Roles, Manage Channels, Ban/Kick/Moderate Members gibi tehlikeli yetkilere sahip olamaz.
+- @everyone ve entegrasyon/bot tarafindan yonetilen roller kullanilamaz.
+
 ## Hata Bildirimi
 
 Bir slash komut hata verirse bot komutu kullanan kisiye DM atar. DM icinde komut adi, gercek hata mesaji, komut dosyasi ve hatanin geldigi dosya/satir bilgisi bulunur.
@@ -107,11 +134,12 @@ Log sistemi sunlari kaydeder:
 - Komut kullanimlari
 - Komut hatalari
 - Uye giris/cikis
+- Galaksi hos geldin/cikis mesaj ayarlari
 - Bot baslatma
 - `/say` kullanimlari ve reddedilen denemeler
 - Ticket acma/kapatma
 - Ticket claim, uye ekle/cikar, oncelik, transcript, isim degistirme
-- Oto rol verme/hata
+- Oto rol verme/hata ve buton rol verme/hata
 - Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 
 Loglar hem `NEXOS_DATA_DIR/logs.jsonl` dosyasina yazilir hem de ayarlanmis log kanalina embed olarak gonderilir.
