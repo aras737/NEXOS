@@ -5,6 +5,21 @@ from core.logging import log_event
 from core.storage import create_ticket_record, find_open_ticket_for_user, get_guild_setting
 
 
+PRIORITY_COLORS = {
+    "dusuk": 0x95A5A6,
+    "normal": 0x5865F2,
+    "yuksek": 0xE67E22,
+    "acil": 0xE74C3C
+}
+
+PRIORITY_LABELS = {
+    "dusuk": "Dusuk",
+    "normal": "Normal",
+    "yuksek": "Yuksek",
+    "acil": "Acil"
+}
+
+
 def ticket_category_name():
     return "NEXOS TICKETS"
 
@@ -14,6 +29,32 @@ def safe_channel_name(user):
     cleaned = "".join(char if char.isalnum() else "-" for char in base)
     cleaned = "-".join(part for part in cleaned.split("-") if part)
     return f"ticket-{cleaned[:20]}-{user.discriminator if getattr(user, 'discriminator', '0') != '0' else user.id % 10000}"
+
+
+def normalize_priority(value):
+    normalized = str(value or "normal").lower().strip()
+    aliases = {
+        "low": "dusuk",
+        "düşük": "dusuk",
+        "medium": "normal",
+        "high": "yuksek",
+        "yüksek": "yuksek",
+        "urgent": "acil"
+    }
+    normalized = aliases.get(normalized, normalized)
+    if normalized not in PRIORITY_COLORS:
+        return "normal"
+    return normalized
+
+
+def is_ticket_staff(member):
+    if member.guild_permissions.manage_channels:
+        return True
+
+    support_role_id = get_guild_setting(member.guild.id, "ticket_support_role_id")
+    if not support_role_id:
+        return False
+    return any(role.id == int(support_role_id) for role in member.roles)
 
 
 async def get_or_create_ticket_category(guild):
@@ -72,7 +113,8 @@ class TicketCloseView(discord.ui.View):
         await close_ticket_channel(interaction, reason="Buton ile kapatildi")
 
 
-async def create_ticket(interaction, subject):
+async def create_ticket(interaction, subject, details="", priority="normal"):
+    priority = normalize_priority(priority)
     existing_channel_id, _ticket = find_open_ticket_for_user(interaction.guild.id, interaction.user.id)
     if existing_channel_id:
         channel = interaction.guild.get_channel(existing_channel_id)
@@ -91,12 +133,15 @@ async def create_ticket(interaction, subject):
         reason=f"NEXOS ticket: {interaction.user}"
     )
 
-    create_ticket_record(interaction.guild.id, channel.id, interaction.user.id, subject)
+    create_ticket_record(interaction.guild.id, channel.id, interaction.user.id, subject, details, priority)
     embed = make_embed(
         "Ticket Acildi",
-        f"{interaction.user.mention} ticket acti.\n\nKonu: {subject}",
-        0x2ECC71
+        f"{interaction.user.mention} ticket acti.",
+        PRIORITY_COLORS[priority]
     )
+    embed.add_field(name="Konu", value=subject, inline=False)
+    embed.add_field(name="Oncelik", value=PRIORITY_LABELS[priority], inline=True)
+    embed.add_field(name="Aciklama", value=details or "Yok", inline=False)
     embed.set_footer(text="Is bitince butondan ticketi kapatabilirsin.")
     await channel.send(content=interaction.user.mention, embed=embed, view=TicketCloseView())
     await interaction.response.send_message(
@@ -110,7 +155,9 @@ async def create_ticket(interaction, subject):
         0x2ECC71,
         [
             ("Kanal", f"{channel} ({channel.id})"),
-            ("Konu", subject)
+            ("Konu", subject),
+            ("Oncelik", PRIORITY_LABELS[priority]),
+            ("Aciklama", details or "Yok")
         ]
     )
 
@@ -122,9 +169,25 @@ class TicketModal(discord.ui.Modal, title="NEXOS Ticket"):
         min_length=3,
         max_length=120
     )
+    priority = discord.ui.TextInput(
+        label="Oncelik",
+        placeholder="dusuk / normal / yuksek / acil",
+        default="normal",
+        min_length=3,
+        max_length=10,
+        required=False
+    )
+    details = discord.ui.TextInput(
+        label="Detay",
+        placeholder="Yetkilinin bilmesi gereken detaylari yaz",
+        min_length=0,
+        max_length=800,
+        required=False,
+        style=discord.TextStyle.paragraph
+    )
 
     async def on_submit(self, interaction):
-        await create_ticket(interaction, str(self.subject))
+        await create_ticket(interaction, str(self.subject), str(self.details), str(self.priority))
 
 
 class TicketPanelView(discord.ui.View):

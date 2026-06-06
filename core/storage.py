@@ -1,5 +1,6 @@
 import json
 import shutil
+import datetime
 from pathlib import Path
 
 from core.config import NEXOS_DATA_DIR
@@ -12,6 +13,7 @@ ECONOMY_FILE = DATA_DIR / "economy.json"
 SETTINGS_FILE = DATA_DIR / "settings.json"
 LOGS_FILE = DATA_DIR / "logs.jsonl"
 TICKETS_FILE = DATA_DIR / "tickets.json"
+TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
 
 
@@ -126,13 +128,24 @@ def guild_tickets(data, guild_id):
     return data[guild_key]
 
 
-def create_ticket_record(guild_id, channel_id, owner_id, subject):
+def now_iso():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def create_ticket_record(guild_id, channel_id, owner_id, subject, details="", priority="normal"):
     data = load_tickets()
     tickets = guild_tickets(data, guild_id)
     tickets[str(channel_id)] = {
         "owner_id": int(owner_id),
         "subject": subject,
-        "status": "open"
+        "details": details,
+        "priority": priority,
+        "status": "open",
+        "claimed_by": None,
+        "added_users": [],
+        "created_at": now_iso(),
+        "closed_at": None,
+        "close_reason": None
     }
     save_tickets(data)
     return tickets[str(channel_id)]
@@ -143,11 +156,24 @@ def get_ticket_record(guild_id, channel_id):
     return data.get(str(guild_id), {}).get(str(channel_id))
 
 
-def close_ticket_record(guild_id, channel_id):
+def update_ticket_record(guild_id, channel_id, **updates):
+    data = load_tickets()
+    ticket = data.get(str(guild_id), {}).get(str(channel_id))
+    if not ticket:
+        return None
+
+    ticket.update(updates)
+    save_tickets(data)
+    return ticket
+
+
+def close_ticket_record(guild_id, channel_id, reason="Sebep belirtilmedi"):
     data = load_tickets()
     ticket = data.get(str(guild_id), {}).get(str(channel_id))
     if ticket:
         ticket["status"] = "closed"
+        ticket["closed_at"] = now_iso()
+        ticket["close_reason"] = reason
         save_tickets(data)
     return ticket
 
@@ -159,3 +185,26 @@ def find_open_ticket_for_user(guild_id, owner_id):
         if ticket.get("owner_id") == int(owner_id) and ticket.get("status") == "open":
             return int(channel_id), ticket
     return None, None
+
+
+def add_ticket_user(guild_id, channel_id, user_id):
+    ticket = get_ticket_record(guild_id, channel_id)
+    if not ticket:
+        return None
+    users = ticket.setdefault("added_users", [])
+    if int(user_id) not in users:
+        users.append(int(user_id))
+    return update_ticket_record(guild_id, channel_id, added_users=users)
+
+
+def remove_ticket_user(guild_id, channel_id, user_id):
+    ticket = get_ticket_record(guild_id, channel_id)
+    if not ticket:
+        return None
+    users = [item for item in ticket.get("added_users", []) if int(item) != int(user_id)]
+    return update_ticket_record(guild_id, channel_id, added_users=users)
+
+
+def transcript_path(guild_id, channel_id):
+    TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
+    return TRANSCRIPTS_DIR / f"{guild_id}-{channel_id}-{now_iso().replace(':', '-')}.txt"

@@ -26,7 +26,7 @@ async def close_ticket_channel(interaction, reason="Sebep belirtilmedi"):
         )
         return
 
-    close_ticket_record(interaction.guild.id, interaction.channel.id)
+    close_ticket_record(interaction.guild.id, interaction.channel.id, reason)
     await interaction.response.send_message(
         embed=make_embed("Ticket Kapatiliyor", f"Ticket 3 saniye icinde kapatilacak.\nSebep: {reason}", 0xE67E22),
         ephemeral=True

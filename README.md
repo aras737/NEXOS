@@ -66,6 +66,14 @@ python bot.py
 - `/ticket-panel` ticket paneli gonderir. Yetki: Administrator.
 - `/ticket-open` ticket acar.
 - `/ticket-close` ticket kapatir.
+- `/ticket-claim` ticketi yetkili ustlenir.
+- `/ticket-add` tickete uye ekler.
+- `/ticket-remove` ticketten uye cikarir.
+- `/ticket-rename` ticket kanal adini degistirir.
+- `/ticket-priority` ticket onceligini degistirir.
+- `/ticket-info` ticket bilgisini gosterir.
+- `/ticket-transcript` ticket mesaj dokumunu olusturur.
+- `/ticket-settings` ticket kategori ve yetkili rol ayarlarini yapar. Yetki: Administrator.
 - `/clear` mesaj siler. Yetki: Manage Messages.
 - `/kick` uyeyi atar. Yetki: Kick Members.
 - `/ban` uyeyi banlar. Yetki: Ban Members.
@@ -96,6 +104,7 @@ Log sistemi sunlari kaydeder:
 - Bot baslatma
 - `/say` kullanimlari ve reddedilen denemeler
 - Ticket acma/kapatma
+- Ticket claim, uye ekle/cikar, oncelik, transcript
 - Oto rol verme/hata
 - Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 
