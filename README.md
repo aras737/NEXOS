@@ -63,17 +63,7 @@ python bot.py
 - `/eco-remove` yetkili olarak kredi siler. Yetki: Administrator.
 - `/eco-set` yetkili olarak bakiyeyi ayarlar. Yetki: Administrator.
 - `/eco-reset` yetkili olarak ekonomi hesabini sifirlar. Yetki: Administrator.
-- `/ticket-panel` ticket paneli gonderir. Yetki: Administrator.
-- `/ticket-open` ticket acar.
-- `/ticket-close` ticket kapatir.
-- `/ticket-claim` ticketi yetkili ustlenir.
-- `/ticket-add` tickete uye ekler.
-- `/ticket-remove` ticketten uye cikarir.
-- `/ticket-rename` ticket kanal adini degistirir.
-- `/ticket-priority` ticket onceligini degistirir.
-- `/ticket-info` ticket bilgisini gosterir.
-- `/ticket-transcript` ticket mesaj dokumunu olusturur.
-- `/ticket-settings` ticket kategori ve yetkili rol ayarlarini yapar. Yetki: Administrator.
+- `/ticket-panel` panel-only ticket sistemini gonderir. Yetki: Administrator. Opsiyonel `channel`, `support_role` ve `category` ayarlari alir.
 - `/clear` mesaj siler. Yetki: Manage Messages.
 - `/kick` uyeyi atar. Yetki: Kick Members.
 - `/ban` uyeyi banlar. Yetki: Ban Members.
@@ -92,6 +82,22 @@ python bot.py
 - `/embed` embed mesaj gonderir. Yetki: Manage Messages.
 - `/kurulum` temel kanal kurulumunu yapar. Yetki: Administrator.
 
+## Ticket Sistemi
+
+Ticketler sadece `/ticket-panel` ile gonderilen paneldeki **Ticket Ac** butonundan acilir. Ayrica ayri ticket slash komutu bulunmaz.
+
+Panelden acilan her ticket kanalinda kontrol paneli otomatik gelir:
+
+- `Ustlen` yetkilinin ticketi sahiplenmesini saglar.
+- `Bilgi` ticket sahibi, konu, oncelik, eklenen uyeler ve detayi gosterir.
+- `Transcript` son mesajlarin dosya dokumunu olusturur.
+- `Uye Ekle` ve `Uye Cikar` yetkilinin ID/etiket ile erisimi yonetmesini saglar.
+- `Yeniden Adlandir` ticket kanal adini duzenler.
+- `Oncelik degistir` secimi ticket onceligini Dusuk, Normal, Yuksek veya Acil yapar.
+- `Ticket Kapat` ticket sahibi veya yetkilinin sebep girerek kanali kapatmasini saglar.
+
+Ticket yetkilisi olmak icin `Manage Channels` yetkisi yeterlidir. Istersen `/ticket-panel support_role:@rol` ile destek rolunu da ayarlayabilirsin. Kategori icin `/ticket-panel category:kategori` kullanilir.
+
 ## Hata Bildirimi
 
 Bir slash komut hata verirse bot komutu kullanan kisiye DM atar. DM icinde komut adi, gercek hata mesaji, komut dosyasi ve hatanin geldigi dosya/satir bilgisi bulunur.
@@ -104,7 +110,7 @@ Log sistemi sunlari kaydeder:
 - Bot baslatma
 - `/say` kullanimlari ve reddedilen denemeler
 - Ticket acma/kapatma
-- Ticket claim, uye ekle/cikar, oncelik, transcript
+- Ticket claim, uye ekle/cikar, oncelik, transcript, isim degistirme
 - Oto rol verme/hata
 - Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 

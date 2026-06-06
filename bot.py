@@ -8,7 +8,7 @@ from core.embeds import make_embed
 from core.errors import handle_app_command_error
 from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
-from core.tickets import TicketCloseView, TicketPanelView
+from core.tickets import TicketControlView, TicketPanelView
 from core.web_server import start_web_server
 
 
@@ -23,7 +23,7 @@ intents.voice_states = True
 class NexosBot(commands.Bot):
     async def setup_hook(self):
         self.add_view(TicketPanelView())
-        self.add_view(TicketCloseView())
+        self.add_view(TicketControlView())
         register_all_commands(self)
 
         if GUILD_ID:
