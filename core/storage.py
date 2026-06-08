@@ -14,6 +14,7 @@ SETTINGS_FILE = DATA_DIR / "settings.json"
 LOGS_FILE = DATA_DIR / "logs.jsonl"
 TICKETS_FILE = DATA_DIR / "tickets.json"
 GIVEAWAYS_FILE = DATA_DIR / "giveaways.json"
+REGISTRATIONS_FILE = DATA_DIR / "registrations.json"
 LAST_ACTIONS_FILE = DATA_DIR / "last_actions.json"
 TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
@@ -253,6 +254,68 @@ def close_giveaway_record(guild_id, message_id, winner_ids, reason="ended"):
         ended_at=now_iso(),
         end_reason=reason
     )
+
+
+def load_registrations():
+    if not REGISTRATIONS_FILE.exists():
+        return {}
+    with REGISTRATIONS_FILE.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def save_registrations(data):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with REGISTRATIONS_FILE.open("w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
+
+def upsert_registration_record(
+    guild_id,
+    user_id,
+    channel_id,
+    message_id,
+    name,
+    age,
+    age_role_id=None,
+    registered_role_id=None,
+    nickname_set=False,
+    status="completed",
+    errors=None
+):
+    data = load_registrations()
+    guild_key = str(guild_id)
+    user_key = str(user_id)
+    record = {
+        "guild_id": int(guild_id),
+        "user_id": int(user_id),
+        "channel_id": int(channel_id),
+        "message_id": int(message_id),
+        "name": name,
+        "age": int(age),
+        "age_role_id": int(age_role_id) if age_role_id else None,
+        "registered_role_id": int(registered_role_id) if registered_role_id else None,
+        "nickname_set": bool(nickname_set),
+        "status": status,
+        "errors": errors or [],
+        "created_at": now_iso()
+    }
+    data.setdefault(guild_key, {})
+    data[guild_key][user_key] = record
+    history = data[guild_key].setdefault("_history", [])
+    history.append(record)
+    data[guild_key]["_history"] = history[-250:]
+    save_registrations(data)
+    return record
+
+
+def list_registration_records(guild_id):
+    data = load_registrations()
+    records = []
+    for key, value in data.get(str(guild_id), {}).items():
+        if key == "_history":
+            continue
+        records.append(value)
+    return sorted(records, key=lambda item: item.get("created_at") or "", reverse=True)
 
 
 def load_tickets():

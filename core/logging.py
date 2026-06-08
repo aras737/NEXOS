@@ -72,11 +72,11 @@ def infer_log_type(title):
 
     if any(item in normalized for item in ["mesaj", "message"]):
         return "message"
-    if any(item in normalized for item in ["ses", "voice", "sese", "sesten"]):
+    if any(item in normalized for item in ["ses", "voice", "sese", "sesten", "muzik", "music"]):
         return "voice"
     if any(item in normalized for item in ["ban", "timeout", "sustur", "warn", "uyari", "kick", "ceza", "unban"]):
         return "punishment"
-    if any(item in normalized for item in ["uye-katildi", "uye-ayrildi", "giris-cikis", "hos-geldin", "galaksi-cikisi"]):
+    if any(item in normalized for item in ["uye-katildi", "uye-ayrildi", "giris-cikis", "hos-geldin", "galaksi-cikisi", "kayit"]):
         return "member"
     if any(item in normalized for item in [
         "moderasyon",

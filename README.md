@@ -19,7 +19,7 @@ NEXOS_DATA_DIR=/var/data/nexos
 
 `GUILD_ID` yazilirsa slash komutlar o sunucuda hemen gorunur. Bos birakilirsa global yuklenir ve Discord tarafinda gorunmesi zaman alabilir.
 
-Uyari verileri `NEXOS_DATA_DIR/warnings.json`, ekonomi verileri `NEXOS_DATA_DIR/economy.json`, cekilis verileri `NEXOS_DATA_DIR/giveaways.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
+Uyari verileri `NEXOS_DATA_DIR/warnings.json`, ekonomi verileri `NEXOS_DATA_DIR/economy.json`, cekilis verileri `NEXOS_DATA_DIR/giveaways.json`, kayit verileri `NEXOS_DATA_DIR/registrations.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
 
 `MEMBER_COUNT_CHANNEL_ID` verilen kanal adini otomatik `uyeler-<sayi>` formatinda gunceller. Botun Manage Channels yetkisi olmalidir.
 
@@ -40,7 +40,9 @@ python bot.py
 - `render.yaml` Render build/start ayarlarini icerir.
 - `warnings.json`, `economy.json`, `settings.json` ve `logs.jsonl` repoya yazilmaz; Render disk altinda saklanir.
 - `giveaways.json` aktif ve bitmis cekilisleri saklar; restart sonrasi cekilisler devam eder.
+- `registrations.json` son kayitlari ve kayit gecmisini saklar.
 - Hos geldin karti icin `Pillow` kullanilir. Paket Render build sirasinda `requirements.txt` ile kurulur.
+- Muzik sistemi icin `yt-dlp` ve Python paketli `ffmpeg` destegi kullanilir. Paketler Render build sirasinda `requirements.txt` ile kurulur.
 
 ## Slash Komutlar
 
@@ -51,6 +53,8 @@ python bot.py
 - `/set-auto-role` yeni gelenlere otomatik rol ayarlar. Yetki: Administrator.
 - `/welcome-settings` giris-cikis kanali ve galaksi hos geldin/cikis mesajlarini ayarlar. Yetki: Administrator.
 - `/role-panel` butona tiklayanlara rol veren paneli gonderir. Yetki: Administrator.
+- `/register-settings` `Isim | Yas` formatli kayit kanalini ve yas rol sistemini ayarlar. Yetki: Administrator.
+- `/register-panel` kayit format panelini gonderir. Yetki: Administrator.
 - `/ping` bot gecikmesini gosterir.
 - `/server` sunucu bilgilerini gosterir.
 - `/user` uye bilgilerini gosterir.
@@ -69,6 +73,13 @@ python bot.py
 - `/giveaway-reroll` bitmis cekilis icin yeni kazanan secer. Yetki: Manage Server.
 - `/giveaway-cancel` aktif cekilisi iptal eder. Yetki: Manage Server.
 - `/giveaway-list` aktif cekilisleri listeler. Yetki: Manage Server.
+- `/music-play` ses kanalinda muzik acar veya siraya ekler. Yetki: Administrator.
+- `/music-skip` calan muzigi atlar. Yetki: Administrator.
+- `/music-stop` muzigi durdurur ve sirayi temizler. Yetki: Administrator.
+- `/music-pause` muzigi duraklatir. Yetki: Administrator.
+- `/music-resume` muzigi devam ettirir. Yetki: Administrator.
+- `/music-leave` botu ses kanalindan cikarir. Yetki: Administrator.
+- `/music-now` calan muzigi ve sira sayisini gosterir. Yetki: Administrator.
 - `/eco-add` yetkili olarak kredi ekler. Yetki: Administrator.
 - `/eco-remove` yetkili olarak kredi siler. Yetki: Administrator.
 - `/eco-set` yetkili olarak bakiyeyi ayarlar. Yetki: Administrator.
@@ -130,6 +141,51 @@ Cekilis ozellikleri:
 - `/giveaway-list` aktif cekilisleri gosterir.
 - Baslatma, katilim, bitirme, reroll, iptal ve hata durumlari loglanir.
 
+## Kayit Sistemi
+
+Kayit kanali `/register-settings channel:#kayit` ile ayarlanir. Ayar yapilmazsa bot adi `kayit` iceren kanallari otomatik dinler. Uye bu kanala:
+
+```text
+Ada | 16
+```
+
+formatinda yazarsa bot:
+
+- `Ada` degerini uyenin takma adi yapar.
+- `16`, `16 Yas`, `16+` gibi yas rolunu bulup verir.
+- Yas rolu yoksa varsayilan olarak `16 Yas` rolunu olusturur.
+- Sunucuda `Uye`, `Kayitli`, `Member` veya `Registered` rolu varsa onu da verir. Istersen `/register-settings registered_role:@rol` ile net rol secilir.
+- Yanlis format, rol/nick hatasi, basarili veya kismi basarili her kayit loglanir.
+- Son kayitlar `registrations.json` dosyasinda saklanir.
+
+Panel gondermek icin:
+
+```text
+/register-panel channel:#kayit
+```
+
+## Muzik Sistemi
+
+Muzik komutlari sadece Administrator yetkisi olan uyeler tarafindan kullanilir. Komutu kullanan yetkili once bir ses kanalina girer, sonra:
+
+```text
+/music-play query:şarkı adı veya YouTube linki
+```
+
+komutunu kullanir. Bot ses kanalina girer, sarki caliyorsa yeni istegi siraya ekler.
+
+Muzik komutlari:
+
+- `/music-play` sarki acar veya siraya ekler.
+- `/music-skip` calan sarkiyi atlar.
+- `/music-stop` muzigi durdurur ve sirayi temizler.
+- `/music-pause` muzigi duraklatir.
+- `/music-resume` duraklatilan muzigi devam ettirir.
+- `/music-leave` botu ses kanalindan cikarir.
+- `/music-now` calan sarkiyi ve sira sayisini gosterir.
+
+Muzik acma, siraya ekleme, baslama, skip, stop, pause, resume, leave ve hata durumlari `ses-log` tarafina kaydedilir.
+
 ## Giris-Cikis ve Rol Paneli
 
 `/welcome-settings` komutu giris-cikis kanalini ve NEXOS galaksi temasindaki mesajlari ayarlar. Giris mesajlarinda uye avatari, sunucu adi ve uye sayisi bulunan PNG welcome karti otomatik gonderilir. Mesajlarda su degiskenler kullanilabilir:
@@ -178,6 +234,8 @@ Log sistemi sunlari kaydeder:
 - Ticket acma/kapatma
 - Ticket claim, uye ekle/cikar, oncelik, transcript, isim degistirme
 - Cekilis baslatma, katilim, bitirme, reroll, iptal ve hata durumlari
+- Kayit basarili/kismi basarili/hata, yas rolu olusturma ve nick degisimi
+- Muzik acma, siraya ekleme, baslama, atlama, durdurma, duraklatma, devam ettirme, ayrilma ve hata
 - Oto rol verme/hata ve buton rol verme/hata
 - Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 
@@ -187,9 +245,9 @@ Ozel log kanal eslesmeleri:
 
 - `log`: genel bot ve komut loglari.
 - `mesaj-log`: mesaj silme ve mesaj duzenleme.
-- `ses-log`: ses kanalina girme/cikma, kanal degistirme, mute/deaf/kamera/yayin.
+- `ses-log`: ses kanalina girme/cikma, kanal degistirme, mute/deaf/kamera/yayin ve muzik.
 - `mod-log`: kanal, rol, ticket, cekilis, emoji, oto rol ve yonetim degisiklikleri.
-- `giris-cikis-log`: uye giris-cikis ve uye isim degisiklikleri.
+- `giris-cikis-log`: uye giris-cikis, kayit ve uye isim degisiklikleri.
 - `ceza-log`: ban, unban, timeout, warn, kick ve ceza tarafi.
 
 Kanal isimlerinde emoji veya ayirici olabilir; `💬・mesaj-log` gibi isimler de taninir. Elle ayarlamak icin:
@@ -226,10 +284,12 @@ Botu `/invite` komutunun verdigi linkle yeniden davet edebilirsin. Link su yetki
 - Manage Messages
 - Manage Channels
 - Manage Roles
+- Manage Nicknames
 - Kick Members
 - Ban Members
 - Moderate Members
 - Connect
 - Speak
+- Use Voice Activity
 
-Permission bit degeri: `1101930785942`
+Permission bit degeri: `1102098558102`

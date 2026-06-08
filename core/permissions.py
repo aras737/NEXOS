@@ -11,14 +11,16 @@ REQUIRED_PERMISSION_LABELS = [
     "Manage Messages",
     "Manage Channels",
     "Manage Roles",
+    "Manage Nicknames",
     "Kick Members",
     "Ban Members",
     "Moderate Members",
     "Connect",
-    "Speak"
+    "Speak",
+    "Use Voice Activity"
 ]
 
-REQUIRED_PERMISSIONS_VALUE = 1101930785942
+REQUIRED_PERMISSIONS_VALUE = 1102098558102
 
 DANGEROUS_SELF_ROLE_PERMISSIONS = {
     "administrator": "Administrator",

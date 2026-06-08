@@ -28,6 +28,7 @@ from core.event_logs import (
 from core.giveaways import GiveawayView, giveaway_watcher
 from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
+from core.registration import process_registration_message
 from core.tickets import TicketControlView, TicketPanelView
 from core.welcome import send_member_leave, send_member_welcome
 from core.web_server import start_web_server
@@ -150,6 +151,12 @@ async def on_member_remove(member):
 @bot.event
 async def on_member_update(before, after):
     await log_member_update(before, after)
+
+
+@bot.event
+async def on_message(message):
+    await process_registration_message(message)
+    await bot.process_commands(message)
 
 
 @bot.event
