@@ -20,5 +20,9 @@ services:
         value: 1511798754980663492
       - key: LOG_CHANNEL_ID
         sync: false
+      - key: YOUTUBE_COOKIES
+        sync: false
+      - key: YOUTUBE_COOKIES_FILE
+        sync: false
       - key: NEXOS_DATA_DIR
         value: /var/data/nexos

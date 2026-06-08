@@ -1,8 +1,12 @@
 import asyncio
+import base64
+import os
 import shutil
+from pathlib import Path
 
 import discord
 
+from core.config import NEXOS_DATA_DIR
 from core.embeds import make_embed
 from core.emojis import with_emoji
 from core.logging import log_event, trim
@@ -16,7 +20,12 @@ YTDL_OPTIONS = {
     "no_warnings": True,
     "ignoreerrors": False,
     "nocheckcertificate": True,
-    "source_address": "0.0.0.0"
+    "source_address": "0.0.0.0",
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["web", "ios"]
+        }
+    }
 }
 
 FFMPEG_OPTIONS = {
@@ -26,6 +35,7 @@ FFMPEG_OPTIONS = {
 
 MAX_QUEUE_SIZE = 20
 MUSIC_STATES = {}
+COOKIE_FILE_CACHE = None
 
 
 class MusicError(Exception):
@@ -76,6 +86,66 @@ def ffmpeg_executable():
     return imageio_ffmpeg.get_ffmpeg_exe()
 
 
+def decode_cookie_env(value):
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if text.startswith("base64:"):
+        return base64.b64decode(text.removeprefix("base64:")).decode("utf-8")
+    if "# Netscape" in text or ".youtube.com" in text or "\t" in text:
+        return text
+    try:
+        return base64.b64decode(text, validate=True).decode("utf-8")
+    except Exception:
+        return text
+
+
+def youtube_cookie_file():
+    global COOKIE_FILE_CACHE
+
+    explicit = os.getenv("YOUTUBE_COOKIES_FILE") or os.getenv("YTDLP_COOKIE_FILE")
+    if explicit and Path(explicit).exists():
+        return explicit
+
+    if COOKIE_FILE_CACHE and Path(COOKIE_FILE_CACHE).exists():
+        return COOKIE_FILE_CACHE
+
+    cookie_env = os.getenv("YOUTUBE_COOKIES") or os.getenv("YTDLP_COOKIES")
+    if not cookie_env:
+        return None
+
+    content = decode_cookie_env(cookie_env)
+    if not content:
+        return None
+    if not content.endswith("\n"):
+        content += "\n"
+
+    NEXOS_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    cookie_path = NEXOS_DATA_DIR / "youtube-cookies.txt"
+    cookie_path.write_text(content, encoding="utf-8")
+    COOKIE_FILE_CACHE = str(cookie_path)
+    return COOKIE_FILE_CACHE
+
+
+def ytdl_options():
+    options = dict(YTDL_OPTIONS)
+    cookie_file = youtube_cookie_file()
+    if cookie_file:
+        options["cookiefile"] = cookie_file
+    return options
+
+
+def friendly_ytdl_error(error):
+    text = str(error)
+    normalized = text.lower()
+    if "sign in to confirm" in normalized or "not a bot" in normalized or "cookies" in normalized:
+        return (
+            "YouTube bot dogrulamasi istedi. Render Environment alanina `YOUTUBE_COOKIES` eklenirse "
+            "bot cookie ile sarki kaynagini alir. Cookie degeri Netscape cookies.txt icerigi veya base64 hali olabilir."
+        )
+    return f"Sarki kaynagi alinamadi: {trim(text, 700)}"
+
+
 def voice_channel_for(member):
     voice_state = getattr(member, "voice", None)
     channel = getattr(voice_state, "channel", None)
@@ -105,10 +175,15 @@ async def extract_track(query, requester):
     search_query = query if query.startswith(("http://", "https://")) else f"ytsearch1:{query}"
 
     def extract():
-        with yt_dlp.YoutubeDL(YTDL_OPTIONS) as ytdl:
+        with yt_dlp.YoutubeDL(ytdl_options()) as ytdl:
             return ytdl.extract_info(search_query, download=False)
 
-    info = await asyncio.to_thread(extract)
+    try:
+        info = await asyncio.to_thread(extract)
+    except yt_dlp.utils.DownloadError as error:
+        raise MusicError(friendly_ytdl_error(error)) from error
+    except Exception as error:
+        raise MusicError(f"Sarki kaynagi alinamadi: {trim(error, 700)}") from error
     if not info:
         raise MusicError("Sarki bulunamadi.")
 
@@ -225,7 +300,7 @@ async def play_next(guild):
 
 async def play_music(interaction, query):
     require_ffmpeg()
-    voice_client = await ensure_voice_client(interaction)
+    voice_channel_for(interaction.user)
     state = get_music_state(interaction.guild.id)
     state.text_channel_id = interaction.channel_id
     state.loop = interaction.client.loop
@@ -234,6 +309,7 @@ async def play_music(interaction, query):
         raise MusicError(f"Sira dolu. Maksimum {MAX_QUEUE_SIZE} sarki bekleyebilir.")
 
     track = await extract_track(query, interaction.user)
+    voice_client = await ensure_voice_client(interaction)
     is_idle = not voice_client.is_playing() and not voice_client.is_paused() and not state.current
     state.queue.append(track)
 

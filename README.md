@@ -12,6 +12,7 @@ GUILD_ID=sunucu_id
 VOICE_CHANNEL_ID=opsiyonel_ses_kanali_id
 MEMBER_COUNT_CHANNEL_ID=1511798754980663492
 LOG_CHANNEL_ID=opsiyonel_log_kanali_id
+YOUTUBE_COOKIES=opsiyonel_youtube_cookies_txt_veya_base64
 NEXOS_DATA_DIR=/var/data/nexos
 ```
 
@@ -43,6 +44,7 @@ python bot.py
 - `registrations.json` son kayitlari ve kayit gecmisini saklar.
 - Hos geldin karti icin `Pillow` kullanilir. Paket Render build sirasinda `requirements.txt` ile kurulur.
 - Muzik sistemi icin `yt-dlp` ve Python paketli `ffmpeg` destegi kullanilir. Paketler Render build sirasinda `requirements.txt` ile kurulur.
+- YouTube `Sign in to confirm you're not a bot` hatasi verirse Render Environment alanina `YOUTUBE_COOKIES` eklenir. Deger Netscape `cookies.txt` icerigi veya `base64:` ile baslayan base64 hali olabilir. Alternatif olarak `YOUTUBE_COOKIES_FILE` ile Render diskindeki cookie dosyasi yolu verilebilir.
 
 ## Slash Komutlar
 
@@ -185,6 +187,8 @@ Muzik komutlari:
 - `/music-now` calan sarkiyi ve sira sayisini gosterir.
 
 Muzik acma, siraya ekleme, baslama, skip, stop, pause, resume, leave ve hata durumlari `ses-log` tarafina kaydedilir.
+
+YouTube bazen Render IP adreslerinden gelen istekleri bot dogrulamasina sokabilir. Bu durumda bot `YOUTUBE_COOKIES` ayari ister. Cookie ayari yoksa bot artik ses kanalina girip sessiz kalmaz; once sarki kaynagini almaya calisir, kaynak alinamazsa komutu kullanan yetkiliye net hata mesaji verir.
 
 ## Giris-Cikis ve Rol Paneli
 
