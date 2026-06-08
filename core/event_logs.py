@@ -77,7 +77,8 @@ async def log_message_delete(message):
             ("Yazan", user_label(message.author)),
             ("Mesaj ID", message.id),
             ("Icerik", message_body(message))
-        ]
+        ],
+        log_type="message"
     )
 
 
@@ -98,7 +99,8 @@ async def log_message_edit(before, after):
             ("Mesaj ID", before.id),
             ("Eski Icerik", message_body(before)),
             ("Yeni Icerik", message_body(after))
-        ]
+        ],
+        log_type="message"
     )
 
 
@@ -113,7 +115,8 @@ async def log_member_update(before, after):
                 ("Uye", user_label(after)),
                 ("Eski Isim", before.nick or before.name),
                 ("Yeni Isim", after.nick or after.name)
-            ]
+            ],
+            log_type="member"
         )
 
     before_roles = set(before.roles)
@@ -130,7 +133,8 @@ async def log_member_update(before, after):
                 ("Uye", user_label(after)),
                 ("Eklenen Roller", role_list(added_roles)),
                 ("Alinan Roller", role_list(removed_roles))
-            ]
+            ],
+            log_type="mod"
         )
 
     before_timeout = getattr(before, "timed_out_until", None)
@@ -145,7 +149,8 @@ async def log_member_update(before, after):
                 ("Uye", user_label(after)),
                 ("Eski", before_timeout or "Yok"),
                 ("Yeni", after_timeout or "Yok")
-            ]
+            ],
+            log_type="punishment"
         )
 
 
@@ -164,7 +169,8 @@ async def log_channel_create(channel):
             ("Kategori", getattr(getattr(channel, "category", None), "name", "Yok")),
             ("Tip", channel_type(channel)),
             ("Yapan", actor)
-        ]
+        ],
+        log_type="mod"
     )
 
 
@@ -183,7 +189,8 @@ async def log_channel_delete(channel):
             ("Kategori", getattr(getattr(channel, "category", None), "name", "Yok")),
             ("Tip", channel_type(channel)),
             ("Yapan", actor)
-        ]
+        ],
+        log_type="mod"
     )
 
 
@@ -209,7 +216,8 @@ async def log_channel_update(before, after):
         with_emoji("settings", "Kanal Guncellendi"),
         f"{channel_label(after)} ayarlari degisti.",
         0x3498DB,
-        [("Kanal", channel_label(after)), ("Yapan", actor), *changes]
+        [("Kanal", channel_label(after)), ("Yapan", actor), *changes],
+        log_type="mod"
     )
 
 
@@ -225,7 +233,8 @@ async def log_role_create(role):
             ("Renk", str(role.color)),
             ("Pozisyon", role.position),
             ("Yapan", actor)
-        ]
+        ],
+        log_type="mod"
     )
 
 
@@ -241,7 +250,8 @@ async def log_role_delete(role):
             ("Renk", str(role.color)),
             ("Pozisyon", role.position),
             ("Yapan", actor)
-        ]
+        ],
+        log_type="mod"
     )
 
 
@@ -268,7 +278,8 @@ async def log_role_update(before, after):
         with_emoji("role", "Rol Guncellendi"),
         f"{after.mention} rolu guncellendi.",
         0xF1C40F,
-        [("Rol", f"{after} ({after.id})"), ("Yapan", actor), *changes]
+        [("Rol", f"{after} ({after.id})"), ("Yapan", actor), *changes],
+        log_type="mod"
     )
 
 
@@ -294,7 +305,7 @@ async def log_voice_state_update(member, before, after):
             fields = [("Uye", user_label(member)), ("Kanal", channel_label(before.channel))]
             color = 0xE67E22
 
-        await log_event(member.guild, title, description, color, fields)
+        await log_event(member.guild, title, description, color, fields, log_type="voice")
 
     changes = []
     voice_flags = [
@@ -317,7 +328,8 @@ async def log_voice_state_update(member, before, after):
             with_emoji("mute", "Ses Durumu Degisti"),
             f"{member.mention} ses durumu degisti.",
             0x9B59B6,
-            [("Uye", user_label(member)), *changes]
+            [("Uye", user_label(member)), *changes],
+            log_type="voice"
         )
 
 
@@ -328,7 +340,8 @@ async def log_member_ban(guild, user):
         with_emoji("ban", "Uye Banlandi"),
         f"{user} sunucudan banlandi.",
         0xE74C3C,
-        [("Uye", user_label(user)), ("Yapan", actor)]
+        [("Uye", user_label(user)), ("Yapan", actor)],
+        log_type="punishment"
     )
 
 
@@ -339,7 +352,8 @@ async def log_member_unban(guild, user):
         with_emoji("unban", "Ban Kaldirildi"),
         f"{user} ban kaldirildi.",
         0x2ECC71,
-        [("Uye", user_label(user)), ("Yapan", actor)]
+        [("Uye", user_label(user)), ("Yapan", actor)],
+        log_type="punishment"
     )
 
 
@@ -370,7 +384,8 @@ async def log_emojis_update(guild, before, after):
         with_emoji("emoji", "Emoji Guncellendi"),
         "Sunucu emoji listesi degisti.",
         0xF1C40F,
-        fields
+        fields,
+        log_type="mod"
     )
 
 
@@ -383,7 +398,8 @@ async def log_guild_join(guild):
         [
             ("Sunucu", f"{guild.name} ({guild.id})"),
             ("Uye Sayisi", guild.member_count or "Bilinmiyor")
-        ]
+        ],
+        log_type="general"
     )
 
 

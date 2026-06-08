@@ -13,6 +13,7 @@ ECONOMY_FILE = DATA_DIR / "economy.json"
 SETTINGS_FILE = DATA_DIR / "settings.json"
 LOGS_FILE = DATA_DIR / "logs.jsonl"
 TICKETS_FILE = DATA_DIR / "tickets.json"
+LAST_ACTIONS_FILE = DATA_DIR / "last_actions.json"
 TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
 
@@ -107,6 +108,45 @@ def append_log(event):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     with LOGS_FILE.open("a", encoding="utf-8") as file:
         file.write(json.dumps(event, ensure_ascii=False) + "\n")
+
+
+def load_last_actions():
+    if not LAST_ACTIONS_FILE.exists():
+        return {}
+    with LAST_ACTIONS_FILE.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def save_last_actions(data):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with LAST_ACTIONS_FILE.open("w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
+
+def update_last_action(guild_id, log_type, event):
+    if not guild_id:
+        return None
+
+    data = load_last_actions()
+    guild_key = str(guild_id)
+    data.setdefault(guild_key, {})
+    snapshot = {
+        "created_at": event.get("created_at"),
+        "type": log_type,
+        "type_label": event.get("type_label"),
+        "title": event.get("title"),
+        "description": event.get("description"),
+        "fields": event.get("fields", [])
+    }
+    data[guild_key]["_all"] = snapshot
+    data[guild_key][str(log_type)] = snapshot
+    save_last_actions(data)
+    return snapshot
+
+
+def get_last_actions(guild_id):
+    data = load_last_actions()
+    return data.get(str(guild_id), {})
 
 
 def load_tickets():

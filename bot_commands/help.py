@@ -7,7 +7,8 @@ from core.emojis import with_emoji
 COMMAND_LINES = [
     "`/help` komut listesini gosterir.",
     "`/invite` bot davet linkini ve gerekli yetkileri gosterir.",
-    "`/set-log-channel` log kanalini ayarlar.",
+    "`/set-log-channel` genel/mesaj/ses/mod/giris-cikis/ceza log kanalini ayarlar.",
+    "`/last-actions` botun kaydettigi son islemleri gosterir.",
     "`/set-auto-role` yeni gelenlere otomatik rol ayarlar.",
     "`/welcome-settings` giris-cikis kanali ve galaksi mesajlarini ayarlar.",
     "`/role-panel` butona tiklayanlara rol veren paneli gonderir.",

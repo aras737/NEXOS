@@ -23,7 +23,7 @@ Uyari verileri `NEXOS_DATA_DIR/warnings.json`, ekonomi verileri `NEXOS_DATA_DIR/
 
 `MEMBER_COUNT_CHANNEL_ID` verilen kanal adini otomatik `uyeler-<sayi>` formatinda gunceller. Botun Manage Channels yetkisi olmalidir.
 
-`LOG_CHANNEL_ID` opsiyoneldir. Bos birakirsan `/set-log-channel` komutu ile Discord icinden ayarlayabilirsin. Log ayari persistent diske yazilir.
+`LOG_CHANNEL_ID` opsiyoneldir. Bos birakirsan `/set-log-channel` komutu ile Discord icinden ayarlayabilirsin. Log ayari persistent diske yazilir. Ozel log kanallari icin bot `log`, `mesaj-log`, `ses-log`, `mod-log`, `giris-cikis-log`, `ceza-log` kanal isimlerini otomatik tanir.
 
 ## Lokal Calistirma
 
@@ -45,7 +45,8 @@ python bot.py
 
 - `/help` komut listesini gosterir.
 - `/invite` bot davet linkini ve gerekli yetkileri gosterir.
-- `/set-log-channel` log kanalini ayarlar. Yetki: Administrator.
+- `/set-log-channel` genel/mesaj/ses/mod/giris-cikis/ceza log kanalini ayarlar. Yetki: Administrator.
+- `/last-actions` botun kaydettigi son islemleri gosterir. Yetki: Administrator.
 - `/set-auto-role` yeni gelenlere otomatik rol ayarlar. Yetki: Administrator.
 - `/welcome-settings` giris-cikis kanali ve galaksi hos geldin/cikis mesajlarini ayarlar. Yetki: Administrator.
 - `/role-panel` butona tiklayanlara rol veren paneli gonderir. Yetki: Administrator.
@@ -151,7 +152,26 @@ Log sistemi sunlari kaydeder:
 - Oto rol verme/hata ve buton rol verme/hata
 - Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 
-Loglar hem `NEXOS_DATA_DIR/logs.jsonl` dosyasina yazilir hem de ayarlanmis log kanalina embed olarak gonderilir.
+Loglar hem `NEXOS_DATA_DIR/logs.jsonl` dosyasina yazilir hem de ayarlanmis log kanalina embed olarak gonderilir. Bot ayrica son aksiyonu `NEXOS_DATA_DIR/last_actions.json` dosyasina kaydeder; `/last-actions` ile son genel islem veya kategori bazli son islem gorulebilir.
+
+Ozel log kanal eslesmeleri:
+
+- `log`: genel bot ve komut loglari.
+- `mesaj-log`: mesaj silme ve mesaj duzenleme.
+- `ses-log`: ses kanalina girme/cikma, kanal degistirme, mute/deaf/kamera/yayin.
+- `mod-log`: kanal, rol, ticket, emoji, oto rol ve yonetim degisiklikleri.
+- `giris-cikis-log`: uye giris-cikis ve uye isim degisiklikleri.
+- `ceza-log`: ban, unban, timeout, warn, kick ve ceza tarafi.
+
+Kanal isimlerinde emoji veya ayirici olabilir; `💬・mesaj-log` gibi isimler de taninir. Elle ayarlamak icin:
+
+```text
+/set-log-channel channel:#mesaj-log log_type:Mesaj Log
+/set-log-channel channel:#ses-log log_type:Ses Log
+/set-log-channel channel:#mod-log log_type:Mod Log
+/set-log-channel channel:#giris-cikis-log log_type:Giris-Cikis Log
+/set-log-channel channel:#ceza-log log_type:Ceza Log
+```
 
 ## Discord Developer Portal
 

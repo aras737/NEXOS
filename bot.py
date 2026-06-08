@@ -82,7 +82,8 @@ async def on_ready():
             [
                 ("Sunucu Sayisi", str(len(bot.guilds))),
                 ("Toplam Kullanici", str(sum(item.member_count or 0 for item in bot.guilds)))
-            ]
+            ],
+            log_type="general"
         )
 
     if VOICE_CHANNEL_ID:
@@ -116,7 +117,8 @@ async def on_member_join(member):
         with_emoji("join", "Uye Katildi"),
         f"{member.mention} sunucuya katildi.",
         0x2ECC71,
-        [("Uye", f"{member} ({member.id})")]
+        [("Uye", f"{member} ({member.id})")],
+        log_type="member"
     )
     await apply_auto_role(member)
     await send_member_welcome(member)
@@ -134,7 +136,8 @@ async def on_member_remove(member):
         with_emoji("leave", "Uye Ayrildi"),
         f"{member} sunucudan ayrildi.",
         0xE67E22,
-        [("Uye", f"{member} ({member.id})")]
+        [("Uye", f"{member} ({member.id})")],
+        log_type="member"
     )
     await send_member_leave(member)
 
