@@ -4,6 +4,7 @@ import discord
 
 from core.config import LOG_CHANNEL_ID
 from core.embeds import make_embed
+from core.emojis import with_emoji
 from core.storage import append_log, get_guild_setting
 
 
@@ -93,7 +94,7 @@ async def log_interaction(interaction):
     channel = interaction.channel or interaction.channel_id
     await log_event(
         interaction.guild,
-        "Komut Kullanildi",
+        with_emoji("settings", "Komut Kullanildi"),
         f"/{command}",
         0x3498DB,
         [

@@ -39,6 +39,7 @@ python bot.py
 - `core/` ortak config, hata, embed, storage ve yetki yardimcilarini icerir.
 - `render.yaml` Render build/start ayarlarini icerir.
 - `warnings.json`, `economy.json`, `settings.json` ve `logs.jsonl` repoya yazilmaz; Render disk altinda saklanir.
+- Hos geldin karti icin `Pillow` kullanilir. Paket Render build sirasinda `requirements.txt` ile kurulur.
 
 ## Slash Komutlar
 
@@ -102,7 +103,7 @@ Ticket yetkilisi olmak icin `Manage Channels` yetkisi yeterlidir. Istersen `/tic
 
 ## Giris-Cikis ve Rol Paneli
 
-`/welcome-settings` komutu giris-cikis kanalini ve NEXOS galaksi temasindaki mesajlari ayarlar. Mesajlarda su degiskenler kullanilabilir:
+`/welcome-settings` komutu giris-cikis kanalini ve NEXOS galaksi temasindaki mesajlari ayarlar. Giris mesajlarinda uye avatari, sunucu adi ve uye sayisi bulunan PNG welcome karti otomatik gonderilir. Mesajlarda su degiskenler kullanilabilir:
 
 - `{mention}` uye etiketini yazar.
 - `{user}` kullanici adini yazar.
@@ -134,8 +135,16 @@ Log sistemi sunlari kaydeder:
 - Komut kullanimlari
 - Komut hatalari
 - Uye giris/cikis
+- Uye isim, rol ve timeout durumu degisiklikleri
+- Mesaj silme ve mesaj duzenleme
+- Kanal olusturma, silme ve ayar degisiklikleri
+- Rol olusturma, silme, isim/renk/yetki degisiklikleri
+- Ses kanalina girme, cikma, kanal degistirme, mute/deaf/kamera/yayin durumu
+- Ban ve ban kaldirma
+- Sunucu emoji ekleme, silme ve ad degistirme
 - Galaksi hos geldin/cikis mesaj ayarlari
 - Bot baslatma
+- Botun sunucu sayisi ve toplam kullanici sayisi
 - `/say` kullanimlari ve reddedilen denemeler
 - Ticket acma/kapatma
 - Ticket claim, uye ekle/cikar, oncelik, transcript, isim degistirme
@@ -149,6 +158,9 @@ Loglar hem `NEXOS_DATA_DIR/logs.jsonl` dosyasina yazilir hem de ayarlanmis log k
 Botun duzgun calismasi icin su intentleri ac:
 
 - Server Members Intent
+- Message Content Intent
+
+Mesaj silme/duzenleme loglarinda mesaj icerigini gorebilmek icin Message Content Intent acik olmalidir. Kapali olursa bot yine olaylari loglar, fakat mesaj icerigi bos gelebilir.
 
 Moderasyon komutlari icin bot rolunu, islem yapacagi uyelerin rollerinden daha yukari tasi.
 
@@ -157,6 +169,7 @@ Moderasyon komutlari icin bot rolunu, islem yapacagi uyelerin rollerinden daha y
 Botu `/invite` komutunun verdigi linkle yeniden davet edebilirsin. Link su yetkileri ister:
 
 - View Channels
+- View Audit Log
 - Send Messages
 - Embed Links
 - Read Message History
@@ -170,4 +183,4 @@ Botu `/invite` komutunun verdigi linkle yeniden davet edebilirsin. Link su yetki
 - Connect
 - Speak
 
-Permission bit degeri: `1101930785814`
+Permission bit degeri: `1101930785942`

@@ -1,6 +1,7 @@
 from discord import app_commands
 
 from core.embeds import make_embed
+from core.emojis import with_emoji
 
 
 COMMAND_LINES = [
@@ -55,6 +56,6 @@ def register(bot):
     @app_commands.checks.bot_has_permissions(embed_links=True)
     async def help_command(interaction):
         await interaction.response.send_message(
-            embed=make_embed("NEXOS Slash Komutlari", "\n".join(COMMAND_LINES)),
+            embed=make_embed(with_emoji("bot", "NEXOS Slash Komutlari"), "\n".join(COMMAND_LINES), 0x8B5CF6),
             ephemeral=True
         )

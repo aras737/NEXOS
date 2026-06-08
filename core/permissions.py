@@ -3,6 +3,7 @@ import discord
 
 REQUIRED_PERMISSION_LABELS = [
     "View Channels",
+    "View Audit Log",
     "Send Messages",
     "Embed Links",
     "Read Message History",
@@ -17,7 +18,7 @@ REQUIRED_PERMISSION_LABELS = [
     "Speak"
 ]
 
-REQUIRED_PERMISSIONS_VALUE = 1101930785814
+REQUIRED_PERMISSIONS_VALUE = 1101930785942
 
 DANGEROUS_SELF_ROLE_PERMISSIONS = {
     "administrator": "Administrator",
