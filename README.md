@@ -19,7 +19,7 @@ NEXOS_DATA_DIR=/var/data/nexos
 
 `GUILD_ID` yazilirsa slash komutlar o sunucuda hemen gorunur. Bos birakilirsa global yuklenir ve Discord tarafinda gorunmesi zaman alabilir.
 
-Uyari verileri `NEXOS_DATA_DIR/warnings.json`, ekonomi verileri `NEXOS_DATA_DIR/economy.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
+Uyari verileri `NEXOS_DATA_DIR/warnings.json`, ekonomi verileri `NEXOS_DATA_DIR/economy.json`, cekilis verileri `NEXOS_DATA_DIR/giveaways.json` dosyasinda tutulur. Render'da restart/deploy sonrasi kaybolmamasi icin persistent disk `/var/data` olarak mount edilmelidir. Bu repo icindeki `render.yaml` bunun icin `nexos-data` diskini ve `NEXOS_DATA_DIR=/var/data/nexos` ayarini tanimlar.
 
 `MEMBER_COUNT_CHANNEL_ID` verilen kanal adini otomatik `uyeler-<sayi>` formatinda gunceller. Botun Manage Channels yetkisi olmalidir.
 
@@ -39,6 +39,7 @@ python bot.py
 - `core/` ortak config, hata, embed, storage ve yetki yardimcilarini icerir.
 - `render.yaml` Render build/start ayarlarini icerir.
 - `warnings.json`, `economy.json`, `settings.json` ve `logs.jsonl` repoya yazilmaz; Render disk altinda saklanir.
+- `giveaways.json` aktif ve bitmis cekilisleri saklar; restart sonrasi cekilisler devam eder.
 - Hos geldin karti icin `Pillow` kullanilir. Paket Render build sirasinda `requirements.txt` ile kurulur.
 
 ## Slash Komutlar
@@ -63,6 +64,11 @@ python bot.py
 - `/withdraw` bankadaki parayi cuzdana ceker.
 - `/pay` baska uyeye para gonderir.
 - `/leaderboard` ekonomi liderlik tablosunu gosterir.
+- `/giveaway-start` butonlu cekilis baslatir. Yetki: Manage Server.
+- `/giveaway-end` aktif cekilisi hemen bitirir. Yetki: Manage Server.
+- `/giveaway-reroll` bitmis cekilis icin yeni kazanan secer. Yetki: Manage Server.
+- `/giveaway-cancel` aktif cekilisi iptal eder. Yetki: Manage Server.
+- `/giveaway-list` aktif cekilisleri listeler. Yetki: Manage Server.
 - `/eco-add` yetkili olarak kredi ekler. Yetki: Administrator.
 - `/eco-remove` yetkili olarak kredi siler. Yetki: Administrator.
 - `/eco-set` yetkili olarak bakiyeyi ayarlar. Yetki: Administrator.
@@ -101,6 +107,28 @@ Panelden acilan her ticket kanalinda kontrol paneli otomatik gelir:
 - `Ticket Kapat` ticket sahibi veya yetkilinin sebep girerek kanali kapatmasini saglar.
 
 Ticket yetkilisi olmak icin `Manage Channels` yetkisi yeterlidir. Istersen `/ticket-panel support_role:@rol` ile destek rolunu da ayarlayabilirsin. Kategori icin `/ticket-panel category:kategori` kullanilir.
+
+## Cekilis Sistemi
+
+`/giveaway-start` komutu butonlu cekilis baslatir. Sure `10m`, `1h`, `2d`, `1w` formatinda yazilir. Cekilisler `giveaways.json` dosyasina kaydedilir, bot restart yesede aktif cekilisler 30 saniyede bir kontrol edilip zamani gelince otomatik bitirilir.
+
+Ornek:
+
+```text
+/giveaway-start prize:Nitro duration:1h winners:1 channel:#cekilis description:Family cekilisi
+```
+
+Cekilis ozellikleri:
+
+- Katilim butonla yapilir.
+- Botlar cekilise katilamaz.
+- Istenirse `required_role` ile sadece belirli role sahip uyeler katilir.
+- Kazananlar otomatik secilir ve kanal mesajina yazilir.
+- `/giveaway-end` cekilisi hemen bitirir.
+- `/giveaway-reroll` bitmis cekiliste yeni kazanan secer.
+- `/giveaway-cancel` aktif cekilisi iptal eder.
+- `/giveaway-list` aktif cekilisleri gosterir.
+- Baslatma, katilim, bitirme, reroll, iptal ve hata durumlari loglanir.
 
 ## Giris-Cikis ve Rol Paneli
 
@@ -149,6 +177,7 @@ Log sistemi sunlari kaydeder:
 - `/say` kullanimlari ve reddedilen denemeler
 - Ticket acma/kapatma
 - Ticket claim, uye ekle/cikar, oncelik, transcript, isim degistirme
+- Cekilis baslatma, katilim, bitirme, reroll, iptal ve hata durumlari
 - Oto rol verme/hata ve buton rol verme/hata
 - Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 
@@ -159,7 +188,7 @@ Ozel log kanal eslesmeleri:
 - `log`: genel bot ve komut loglari.
 - `mesaj-log`: mesaj silme ve mesaj duzenleme.
 - `ses-log`: ses kanalina girme/cikma, kanal degistirme, mute/deaf/kamera/yayin.
-- `mod-log`: kanal, rol, ticket, emoji, oto rol ve yonetim degisiklikleri.
+- `mod-log`: kanal, rol, ticket, cekilis, emoji, oto rol ve yonetim degisiklikleri.
 - `giris-cikis-log`: uye giris-cikis ve uye isim degisiklikleri.
 - `ceza-log`: ban, unban, timeout, warn, kick ve ceza tarafi.
 

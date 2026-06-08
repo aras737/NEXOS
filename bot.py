@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 from discord.ext import commands
 
@@ -23,6 +25,7 @@ from core.event_logs import (
     log_role_update,
     log_voice_state_update
 )
+from core.giveaways import GiveawayView, giveaway_watcher
 from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
 from core.tickets import TicketControlView, TicketPanelView
@@ -46,8 +49,10 @@ if hasattr(intents, "moderation"):
 class NexosBot(commands.Bot):
     async def setup_hook(self):
         self.add_view(ButtonRoleView())
+        self.add_view(GiveawayView())
         self.add_view(TicketPanelView())
         self.add_view(TicketControlView())
+        self.giveaway_task = asyncio.create_task(giveaway_watcher(self))
         register_all_commands(self)
 
         if GUILD_ID:

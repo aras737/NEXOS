@@ -22,6 +22,8 @@ EMOJIS = {
     "mute": "🔇",
     "emoji": "😀",
     "ticket": "🎫",
+    "giveaway": "🎉",
+    "gift": "🎁",
     "coin": "🪙",
     "lock": "🔒",
     "unlock": "🔓",

@@ -18,7 +18,7 @@ def register(bot):
 
         embed = make_embed(
             with_emoji("galaxy", "NEXOS"),
-            "Moderasyon, ekonomi, ticket, welcome karti, buton rol ve full log sistemi aktif.",
+            "Moderasyon, ekonomi, ticket, cekilis, welcome karti, buton rol ve full log sistemi aktif.",
             0x8B5CF6
         )
         embed.add_field(name=f"{emoji('rocket')} Gecikme", value=f"{round(bot.latency * 1000)}ms", inline=True)

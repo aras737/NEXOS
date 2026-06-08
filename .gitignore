@@ -7,5 +7,6 @@ data/economy.json
 data/settings.json
 data/logs.jsonl
 data/tickets.json
+data/giveaways.json
 data/last_actions.json
 data/transcripts/

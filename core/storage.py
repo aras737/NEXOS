@@ -13,6 +13,7 @@ ECONOMY_FILE = DATA_DIR / "economy.json"
 SETTINGS_FILE = DATA_DIR / "settings.json"
 LOGS_FILE = DATA_DIR / "logs.jsonl"
 TICKETS_FILE = DATA_DIR / "tickets.json"
+GIVEAWAYS_FILE = DATA_DIR / "giveaways.json"
 LAST_ACTIONS_FILE = DATA_DIR / "last_actions.json"
 TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 LEGACY_WARNINGS_FILE = LEGACY_DATA_DIR / "warnings.json"
@@ -147,6 +148,111 @@ def update_last_action(guild_id, log_type, event):
 def get_last_actions(guild_id):
     data = load_last_actions()
     return data.get(str(guild_id), {})
+
+
+def load_giveaways():
+    if not GIVEAWAYS_FILE.exists():
+        return {}
+    with GIVEAWAYS_FILE.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def save_giveaways(data):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    with GIVEAWAYS_FILE.open("w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
+
+def guild_giveaways(data, guild_id):
+    guild_key = str(guild_id)
+    data.setdefault(guild_key, {})
+    return data[guild_key]
+
+
+def create_giveaway_record(
+    guild_id,
+    channel_id,
+    message_id,
+    host_id,
+    prize,
+    description,
+    winners_count,
+    ends_at,
+    required_role_id=None
+):
+    data = load_giveaways()
+    giveaways = guild_giveaways(data, guild_id)
+    giveaways[str(message_id)] = {
+        "guild_id": int(guild_id),
+        "channel_id": int(channel_id),
+        "message_id": int(message_id),
+        "host_id": int(host_id),
+        "prize": prize,
+        "description": description,
+        "winners_count": int(winners_count),
+        "ends_at": ends_at,
+        "required_role_id": int(required_role_id) if required_role_id else None,
+        "participants": [],
+        "winner_ids": [],
+        "status": "open",
+        "created_at": now_iso(),
+        "ended_at": None,
+        "end_reason": None
+    }
+    save_giveaways(data)
+    return giveaways[str(message_id)]
+
+
+def get_giveaway_record(guild_id, message_id):
+    data = load_giveaways()
+    return data.get(str(guild_id), {}).get(str(message_id))
+
+
+def update_giveaway_record(guild_id, message_id, **updates):
+    data = load_giveaways()
+    giveaway = data.get(str(guild_id), {}).get(str(message_id))
+    if not giveaway:
+        return None
+    giveaway.update(updates)
+    save_giveaways(data)
+    return giveaway
+
+
+def add_giveaway_participant(guild_id, message_id, user_id):
+    giveaway = get_giveaway_record(guild_id, message_id)
+    if not giveaway:
+        return None
+    participants = [int(item) for item in giveaway.get("participants", [])]
+    if int(user_id) not in participants:
+        participants.append(int(user_id))
+    return update_giveaway_record(guild_id, message_id, participants=participants)
+
+
+def remove_giveaway_participant(guild_id, message_id, user_id):
+    giveaway = get_giveaway_record(guild_id, message_id)
+    if not giveaway:
+        return None
+    participants = [int(item) for item in giveaway.get("participants", []) if int(item) != int(user_id)]
+    return update_giveaway_record(guild_id, message_id, participants=participants)
+
+
+def list_giveaway_records(guild_id, status=None):
+    data = load_giveaways()
+    giveaways = list(data.get(str(guild_id), {}).values())
+    if status:
+        giveaways = [item for item in giveaways if item.get("status") == status]
+    return sorted(giveaways, key=lambda item: item.get("ends_at") or "")
+
+
+def close_giveaway_record(guild_id, message_id, winner_ids, reason="ended"):
+    return update_giveaway_record(
+        guild_id,
+        message_id,
+        status="ended",
+        winner_ids=[int(item) for item in winner_ids],
+        ended_at=now_iso(),
+        end_reason=reason
+    )
 
 
 def load_tickets():

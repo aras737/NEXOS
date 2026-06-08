@@ -12,6 +12,7 @@ from bot_commands import (
     eco_reset,
     eco_set,
     embed,
+    giveaway,
     help,
     invite,
     kick,
@@ -84,6 +85,7 @@ COMMAND_MODULES = [
     set_log_channel,
     set_auto_role,
     embed,
+    giveaway,
     ticket_panel,
     welcome_settings,
     kurulum

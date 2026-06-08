@@ -83,6 +83,8 @@ def infer_log_type(title):
         "rol",
         "kanal",
         "ticket",
+        "cekilis",
+        "giveaway",
         "lock",
         "unlock",
         "slowmode",
