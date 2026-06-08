@@ -12,8 +12,15 @@ from core.emojis import with_emoji
 from core.logging import log_event, trim
 
 
+FORMAT_SELECTORS = [
+    "bestaudio*/best*",
+    "best*[acodec!=none]/bestaudio*/best*",
+    "bestaudio/best",
+    "best"
+]
+
 YTDL_OPTIONS = {
-    "format": "bestaudio/best",
+    "format": FORMAT_SELECTORS[0],
     "default_search": "ytsearch",
     "noplaylist": True,
     "quiet": True,
@@ -127,8 +134,10 @@ def youtube_cookie_file():
     return COOKIE_FILE_CACHE
 
 
-def ytdl_options():
+def ytdl_options(format_selector=None):
     options = dict(YTDL_OPTIONS)
+    if format_selector:
+        options["format"] = format_selector
     cookie_file = youtube_cookie_file()
     if cookie_file:
         options["cookiefile"] = cookie_file
@@ -143,7 +152,39 @@ def friendly_ytdl_error(error):
             "YouTube bot dogrulamasi istedi. Render Environment alanina `YOUTUBE_COOKIES` eklenirse "
             "bot cookie ile sarki kaynagini alir. Cookie degeri Netscape cookies.txt icerigi veya base64 hali olabilir."
         )
+    if "requested format is not available" in normalized:
+        return "Bu sarkida secilen YouTube ses formati yok. Alternatif formatlar denendi ama uygun ses kaynagi alinamadi."
     return f"Sarki kaynagi alinamadi: {trim(text, 700)}"
+
+
+def is_format_unavailable(error):
+    return "requested format is not available" in str(error).lower()
+
+
+def stream_url_from_info(info):
+    if info.get("url"):
+        return info["url"]
+
+    requested_formats = info.get("requested_formats") or []
+    for item in requested_formats:
+        if item.get("url") and item.get("acodec") != "none":
+            return item["url"]
+
+    formats = [
+        item
+        for item in info.get("formats") or []
+        if item.get("url") and item.get("acodec") != "none"
+    ]
+    if not formats:
+        return None
+
+    def format_score(item):
+        audio_only = 1 if item.get("vcodec") == "none" else 0
+        abr = item.get("abr") or 0
+        tbr = item.get("tbr") or 0
+        return audio_only, abr, tbr
+
+    return max(formats, key=format_score)["url"]
 
 
 def voice_channel_for(member):
@@ -174,16 +215,26 @@ async def extract_track(query, requester):
 
     search_query = query if query.startswith(("http://", "https://")) else f"ytsearch1:{query}"
 
-    def extract():
-        with yt_dlp.YoutubeDL(ytdl_options()) as ytdl:
+    def extract(format_selector):
+        with yt_dlp.YoutubeDL(ytdl_options(format_selector)) as ytdl:
             return ytdl.extract_info(search_query, download=False)
 
-    try:
-        info = await asyncio.to_thread(extract)
-    except yt_dlp.utils.DownloadError as error:
-        raise MusicError(friendly_ytdl_error(error)) from error
-    except Exception as error:
-        raise MusicError(f"Sarki kaynagi alinamadi: {trim(error, 700)}") from error
+    info = None
+    last_error = None
+    for format_selector in FORMAT_SELECTORS:
+        try:
+            info = await asyncio.to_thread(extract, format_selector)
+            break
+        except yt_dlp.utils.DownloadError as error:
+            last_error = error
+            if is_format_unavailable(error):
+                continue
+            raise MusicError(friendly_ytdl_error(error)) from error
+        except Exception as error:
+            raise MusicError(f"Sarki kaynagi alinamadi: {trim(error, 700)}") from error
+
+    if info is None and last_error:
+        raise MusicError(friendly_ytdl_error(last_error)) from last_error
     if not info:
         raise MusicError("Sarki bulunamadi.")
 
@@ -193,7 +244,7 @@ async def extract_track(query, requester):
             raise MusicError("Sarki bulunamadi.")
         info = entries[0]
 
-    stream_url = info.get("url")
+    stream_url = stream_url_from_info(info)
     if not stream_url:
         raise MusicError("Ses kaynagi alinamadi.")
 
