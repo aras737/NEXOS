@@ -39,6 +39,7 @@ from bot_commands import (
     unlock,
     untimeout,
     user,
+    voice_welcome,
     warn,
     warnings,
     welcome_settings,
@@ -90,6 +91,7 @@ COMMAND_MODULES = [
     embed,
     giveaway,
     music,
+    voice_welcome,
     ticket_panel,
     welcome_settings,
     kurulum

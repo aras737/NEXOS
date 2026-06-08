@@ -30,6 +30,7 @@ from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
 from core.registration import process_registration_message
 from core.tickets import TicketControlView, TicketPanelView
+from core.voice_welcome import handle_voice_welcome
 from core.welcome import send_member_leave, send_member_welcome
 from core.web_server import start_web_server
 
@@ -202,6 +203,7 @@ async def on_guild_role_update(before, after):
 @bot.event
 async def on_voice_state_update(member, before, after):
     await log_voice_state_update(member, before, after)
+    await handle_voice_welcome(member, before, after)
 
 
 @bot.event

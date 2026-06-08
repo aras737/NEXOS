@@ -44,6 +44,7 @@ python bot.py
 - `registrations.json` son kayitlari ve kayit gecmisini saklar.
 - Hos geldin karti icin `Pillow` kullanilir. Paket Render build sirasinda `requirements.txt` ile kurulur.
 - Muzik sistemi icin `yt-dlp` ve Python paketli `ffmpeg` destegi kullanilir. Paketler Render build sirasinda `requirements.txt` ile kurulur.
+- Voice welcome ses dosyalari URL olarak verilebilir veya Render diskinde `NEXOS_DATA_DIR/sounds/` altinda tutulabilir; repo icine yazilmaz.
 - YouTube `Sign in to confirm you're not a bot` hatasi verirse Render Environment alanina `YOUTUBE_COOKIES` eklenir. Deger Netscape `cookies.txt` icerigi veya `base64:` ile baslayan base64 hali olabilir. Alternatif olarak `YOUTUBE_COOKIES_FILE` ile Render diskindeki cookie dosyasi yolu verilebilir.
 
 ## Slash Komutlar
@@ -82,6 +83,8 @@ python bot.py
 - `/music-resume` muzigi devam ettirir. Yetki: Administrator.
 - `/music-leave` botu ses kanalindan cikarir. Yetki: Administrator.
 - `/music-now` calan muzigi ve sira sayisini gosterir. Yetki: Administrator.
+- `/voice-welcome-settings` ses kanalina girislerde calacak welcome/staff sesini ayarlar. Yetki: Administrator.
+- `/voice-welcome-info` voice welcome ayarlarini gosterir. Yetki: Administrator.
 - `/eco-add` yetkili olarak kredi ekler. Yetki: Administrator.
 - `/eco-remove` yetkili olarak kredi siler. Yetki: Administrator.
 - `/eco-set` yetkili olarak bakiyeyi ayarlar. Yetki: Administrator.
@@ -190,6 +193,24 @@ Muzik acma, siraya ekleme, baslama, skip, stop, pause, resume, leave ve hata dur
 
 YouTube bazen Render IP adreslerinden gelen istekleri bot dogrulamasina sokabilir. Bu durumda bot `YOUTUBE_COOKIES` ayari ister. Cookie ayari yoksa bot artik ses kanalina girip sessiz kalmaz; once sarki kaynagini almaya calisir, kaynak alinamazsa komutu kullanan yetkiliye net hata mesaji verir.
 
+## Voice Welcome Sistemi
+
+`thearkxd/discord-welcome-bots` reposundaki mantiga benzer sekilde NEXOS belirlenen ses kanalini dinleyebilir. Uye kanala girdiginde ayarlanan welcome sesi calar; yetkili rol ve kayitsiz rol ayarlanirsa yetkili/kayitsiz bulusmasi icin ayri staff sesi de calabilir.
+
+Ornek:
+
+```text
+/voice-welcome-settings channel:"Kayit Bekleme" welcome_sound:https://site.com/welcome.mp3 staff_sound:https://site.com/staff.mp3 staff_role:@Yetkili unregistered_role:@Kayitsiz enabled:true
+```
+
+Davranis:
+
+- `channel` ayarlanmazsa `VOICE_CHANNEL_ID` varsa onu kullanir.
+- `unregistered_role` ayarlanirsa sadece o role sahip uyeler tetikler; ayarlanmazsa bot olmayan herkes sayilir.
+- `staff_role` ve `staff_sound` ayarliyken kanalda ilk yetkili ve ilk kayitsiz ayni anda bulusursa staff sesi calar.
+- Bot baska muzik veya ses caliyorsa voice welcome sesi atlanir ve `ses-log` kanalina yazilir.
+- Hata, atlama, ses kaynagi eksigi ve basarili calisma olaylari loglanir.
+
 ## Giris-Cikis ve Rol Paneli
 
 `/welcome-settings` komutu giris-cikis kanalini ve NEXOS galaksi temasindaki mesajlari ayarlar. Giris mesajlarinda uye avatari, sunucu adi ve uye sayisi bulunan PNG welcome karti otomatik gonderilir. Mesajlarda su degiskenler kullanilabilir:
@@ -240,6 +261,7 @@ Log sistemi sunlari kaydeder:
 - Cekilis baslatma, katilim, bitirme, reroll, iptal ve hata durumlari
 - Kayit basarili/kismi basarili/hata, yas rolu olusturma ve nick degisimi
 - Muzik acma, siraya ekleme, baslama, atlama, durdurma, duraklatma, devam ettirme, ayrilma ve hata
+- Voice welcome sesi calinmasi, atlanmasi ve hata durumlari
 - Oto rol verme/hata ve buton rol verme/hata
 - Ban/kick/timeout/warn/rol/kanal moderasyon islemleri
 

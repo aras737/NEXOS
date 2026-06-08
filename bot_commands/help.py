@@ -39,6 +39,8 @@ COMMAND_LINES = [
     "`/music-resume` muzigi devam ettirir.",
     "`/music-leave` botu ses kanalindan cikarir.",
     "`/music-now` calan muzigi gosterir.",
+    "`/voice-welcome-settings` ses kanalina girislerde calacak welcome sesini ayarlar.",
+    "`/voice-welcome-info` voice welcome ayarlarini gosterir.",
     "`/eco-add` yetkili olarak kredi ekler.",
     "`/eco-remove` yetkili olarak kredi siler.",
     "`/eco-set` yetkili olarak bakiyeyi ayarlar.",

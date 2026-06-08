@@ -18,14 +18,14 @@ def register(bot):
 
         embed = make_embed(
             with_emoji("galaxy", "NEXOS"),
-            "Moderasyon, ekonomi, ticket, cekilis, kayit, muzik, welcome karti, buton rol ve full log sistemi aktif.",
+            "Moderasyon, ekonomi, ticket, cekilis, kayit, muzik, voice welcome, welcome karti, buton rol ve full log sistemi aktif.",
             0x8B5CF6
         )
         embed.add_field(name=f"{emoji('rocket')} Gecikme", value=f"{round(bot.latency * 1000)}ms", inline=True)
         embed.add_field(name=f"{emoji('server')} Sunucu Sayisi", value=str(guild_count), inline=True)
         embed.add_field(name=f"{emoji('member')} Kullanici", value=str(user_count), inline=True)
         embed.add_field(name=f"{emoji('settings')} Slash Komut", value=str(command_count), inline=True)
-        embed.add_field(name=f"{emoji('shield')} Log Paketi", value="Mesaj, uye, kayit, muzik, rol, kanal, ses, ban, emoji", inline=False)
+        embed.add_field(name=f"{emoji('shield')} Log Paketi", value="Mesaj, uye, kayit, muzik, voice welcome, rol, kanal, ses, ban, emoji", inline=False)
         embed.add_field(name=f"{emoji('bot')} discord.py", value=discord.__version__, inline=True)
         if bot.user:
             embed.set_thumbnail(url=bot.user.display_avatar.url)
