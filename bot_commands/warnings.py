@@ -5,6 +5,13 @@ from core.embeds import make_embed
 from core.storage import get_warnings
 
 
+def warning_line(index, item):
+    reason = item.get("reason", "Sebep yok")
+    moderator_id = item.get("moderator_id")
+    moderator = f"<@{moderator_id}>" if moderator_id else item.get("moderator", "Bilinmiyor")
+    return f"{index + 1}. {reason} - {moderator}"
+
+
 def register(bot):
     @bot.tree.command(name="warnings", description="Uyenin uyarilarini listeler.")
     @app_commands.guild_only()
@@ -16,7 +23,7 @@ def register(bot):
             description = "Uyari yok."
         else:
             description = "\n".join(
-                f"{index + 1}. {item['reason']} - <@{item['moderator_id']}>"
+                warning_line(index, item)
                 for index, item in enumerate(warnings)
             )
         await interaction.response.send_message(

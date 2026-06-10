@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from bot_commands import register_all_commands
 from core.auto_role import ButtonRoleView, apply_auto_role
+from core.automod import handle_automod_message
 from core.config import DISCORD_TOKEN, GUILD_ID, VOICE_CHANNEL_ID
 from core.emojis import with_emoji
 from core.errors import handle_app_command_error
@@ -29,6 +30,7 @@ from core.giveaways import GiveawayView, giveaway_watcher
 from core.logging import log_event, log_interaction
 from core.member_counter import update_member_count_channel
 from core.registration import process_registration_message
+from core.security import handle_bot_join, handle_guarded_audit_event
 from core.tickets import TicketControlView, TicketPanelView
 from core.voice_welcome import handle_voice_welcome
 from core.welcome import send_member_leave, send_member_welcome
@@ -119,6 +121,10 @@ async def on_member_join(member):
     except Exception as error:
         print(f"Uye sayaci guncellenirken hata olustu: {error}")
 
+    if member.bot:
+        await handle_bot_join(member)
+        return
+
     await log_event(
         member.guild,
         with_emoji("join", "Uye Katildi"),
@@ -146,6 +152,14 @@ async def on_member_remove(member):
         [("Uye", f"{member} ({member.id})")],
         log_type="member"
     )
+    await handle_guarded_audit_event(
+        member.guild,
+        "kick",
+        discord.AuditLogAction.kick,
+        member.id,
+        "Sunucu Koruma: Kick Izleme",
+        f"{member} sunucudan ayrildi; kick audit kaydi kontrol edildi."
+    )
     await send_member_leave(member)
 
 
@@ -156,7 +170,10 @@ async def on_member_update(before, after):
 
 @bot.event
 async def on_message(message):
-    await process_registration_message(message)
+    if await process_registration_message(message):
+        return
+    if await handle_automod_message(message):
+        return
     await bot.process_commands(message)
 
 
@@ -173,11 +190,27 @@ async def on_message_edit(before, after):
 @bot.event
 async def on_guild_channel_create(channel):
     await log_channel_create(channel)
+    await handle_guarded_audit_event(
+        channel.guild,
+        "channel_create",
+        discord.AuditLogAction.channel_create,
+        channel.id,
+        "Sunucu Koruma: Kanal Olusturma",
+        f"{channel} kanali olusturuldu."
+    )
 
 
 @bot.event
 async def on_guild_channel_delete(channel):
     await log_channel_delete(channel)
+    await handle_guarded_audit_event(
+        channel.guild,
+        "channel_delete",
+        discord.AuditLogAction.channel_delete,
+        channel.id,
+        "Sunucu Koruma: Kanal Silme",
+        f"{channel} kanali silindi."
+    )
 
 
 @bot.event
@@ -188,11 +221,27 @@ async def on_guild_channel_update(before, after):
 @bot.event
 async def on_guild_role_create(role):
     await log_role_create(role)
+    await handle_guarded_audit_event(
+        role.guild,
+        "role_create",
+        discord.AuditLogAction.role_create,
+        role.id,
+        "Sunucu Koruma: Rol Olusturma",
+        f"{role} rolu olusturuldu."
+    )
 
 
 @bot.event
 async def on_guild_role_delete(role):
     await log_role_delete(role)
+    await handle_guarded_audit_event(
+        role.guild,
+        "role_delete",
+        discord.AuditLogAction.role_delete,
+        role.id,
+        "Sunucu Koruma: Rol Silme",
+        f"{role} rolu silindi."
+    )
 
 
 @bot.event
@@ -209,6 +258,14 @@ async def on_voice_state_update(member, before, after):
 @bot.event
 async def on_member_ban(guild, user):
     await log_member_ban(guild, user)
+    await handle_guarded_audit_event(
+        guild,
+        "ban",
+        discord.AuditLogAction.ban,
+        user.id,
+        "Sunucu Koruma: Ban Izleme",
+        f"{user} banlandi."
+    )
 
 
 @bot.event

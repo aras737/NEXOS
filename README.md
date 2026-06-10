@@ -56,6 +56,14 @@ python bot.py
 - `/set-auto-role` yeni gelenlere otomatik rol ayarlar. Yetki: Administrator.
 - `/welcome-settings` giris-cikis kanali ve galaksi hos geldin/cikis mesajlarini ayarlar. Yetki: Administrator.
 - `/role-panel` butona tiklayanlara rol veren paneli gonderir. Yetki: Administrator.
+- `/automod-settings` davet/link/spam/etiket AutoMod ayarlarini yapar. Yetki: Administrator.
+- `/automod-word-add` yasak kelime ekler. Yetki: Administrator.
+- `/automod-word-remove` yasak kelime siler. Yetki: Administrator.
+- `/automod-info` AutoMod ayarlarini gosterir. Yetki: Administrator.
+- `/security-settings` bot ekleme korumasi ve anti-raid ayarlarini yapar. Yetki: Administrator.
+- `/security-allow-bot` izinli bot listesine bot ID ekler. Yetki: Administrator.
+- `/security-deny-bot` izinli bot listesinden bot ID siler. Yetki: Administrator.
+- `/security-info` sunucu koruma ayarlarini gosterir. Yetki: Administrator.
 - `/register-settings` `Isim | Yas` formatli kayit kanalini ve yas rol sistemini ayarlar. Yetki: Administrator.
 - `/register-panel` kayit format panelini gonderir. Yetki: Administrator.
 - `/ping` bot gecikmesini gosterir.
@@ -107,6 +115,38 @@ python bot.py
 - `/say` bot adina mesaj gonderir. Sadece sunucu sahibi.
 - `/embed` embed mesaj gonderir. Yetki: Manage Messages.
 - `/kurulum` temel kanal kurulumunu yapar. Yetki: Administrator.
+
+## AutoMod Sistemi
+
+AutoMod varsayilan olarak aciktir; Administrator, Manage Messages veya Moderate Members yetkili uyeleri es gecer. Davet linki, spam, cok etiket ve yasak kelime olaylarini yakalar. Normal link engeli varsayilan olarak kapalidir; istenirse acilir.
+
+Ornek:
+
+```text
+/automod-settings enabled:true anti_invite:true anti_links:false anti_spam:true anti_mass_mention:true action:Timeout timeout_minutes:10
+/automod-word-add word:yasak_kelime
+```
+
+Aksiyonlar:
+
+- `Sil`: Mesaji siler ve loglar.
+- `Uyar`: Mesaji siler, uyari kaydeder ve loglar.
+- `Timeout`: Mesaji siler, uyari kaydeder, uyeyi timeout atmaya calisir ve loglar.
+
+## Sunucu Koruma ve Bot Guard
+
+Bot ekleme korumasi varsayilan olarak aciktir. Sunucuya allowlist disi bir bot eklenirse NEXOS audit logdan ekleyeni bulmaya calisir, eklenen botu atar, ekleyenin tehlikeli yetkili rollerini almaya calisir ve sunucu sahibine DM ile Onayla/Reddet/Yetki Al butonlu embed gonderir.
+
+Sunucu sahibi DM panelinde `Onayla` derse bot ID'si allowlist'e girer; ayni bot tekrar eklenirse izinli sayilir.
+
+Ornek:
+
+```text
+/security-settings enabled:true bot_guard_enabled:true anti_raid_enabled:true raid_threshold:3 raid_window_seconds:30
+/security-allow-bot bot_id:123456789012345678
+```
+
+Anti-raid sistemi kisa surede cok kanal/rol silme/olusturma, ban ve kick hareketlerini izler. Esik asilinca islemi yapan uyenin Administrator, Manage Server, Manage Roles, Manage Channels, Ban/Kick/Moderate Members gibi tehlikeli rollerini almaya calisir, `mod-log` kanalina ve sunucu sahibine alarm gonderir.
 
 ## Ticket Sistemi
 
@@ -244,6 +284,9 @@ Log sistemi sunlari kaydeder:
 
 - Komut kullanimlari
 - Komut hatalari
+- AutoMod davet/link/spam/etiket/yasak kelime yakalamalari
+- Izinsiz bot ekleme, bot allowlist onayi/reddi ve yetki alma denemeleri
+- Anti-raid kanal/rol/ban/kick alarmlari
 - Uye giris/cikis
 - Uye isim, rol ve timeout durumu degisiklikleri
 - Mesaj silme ve mesaj duzenleme
@@ -272,9 +315,9 @@ Ozel log kanal eslesmeleri:
 - `log`: genel bot ve komut loglari.
 - `mesaj-log`: mesaj silme ve mesaj duzenleme.
 - `ses-log`: ses kanalina girme/cikma, kanal degistirme, mute/deaf/kamera/yayin ve muzik.
-- `mod-log`: kanal, rol, ticket, cekilis, emoji, oto rol ve yonetim degisiklikleri.
+- `mod-log`: kanal, rol, ticket, cekilis, AutoMod, sunucu koruma, bot guard, emoji, oto rol ve yonetim degisiklikleri.
 - `giris-cikis-log`: uye giris-cikis, kayit ve uye isim degisiklikleri.
-- `ceza-log`: ban, unban, timeout, warn, kick ve ceza tarafi.
+- `ceza-log`: AutoMod engelleri, ban, unban, timeout, warn, kick ve ceza tarafi.
 
 Kanal isimlerinde emoji veya ayirici olabilir; `💬・mesaj-log` gibi isimler de taninir. Elle ayarlamak icin:
 
