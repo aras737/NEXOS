@@ -59,14 +59,12 @@ class NexosBot(commands.Bot):
         self.giveaway_task = asyncio.create_task(giveaway_watcher(self))
         register_all_commands(self)
 
-        if GUILD_ID:
-            guild = discord.Object(id=GUILD_ID)
-            self.tree.copy_global_to(guild=guild)
-            synced = await self.tree.sync(guild=guild)
-            print(f"{len(synced)} slash komut GUILD_ID sunucusuna yuklendi.")
-        else:
+        # Güvenli global senkronizasyon yapısı
+        try:
             synced = await self.tree.sync()
-            print(f"{len(synced)} global slash komut yuklendi.")
+            print(f"{len(synced)} global slash komut basariyla yuklendi.")
+        except Exception as error:
+            print(f"Slash komutlar senkronize edilirken hata olustu: {error}")
 
 
 bot = NexosBot(command_prefix="!", intents=intents, help_command=None)
