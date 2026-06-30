@@ -311,4 +311,4 @@ async def on_app_command_error(interaction, error):
 if not DISCORD_TOKEN:
     raise RuntimeError("DISCORD_TOKEN ortam degiskeni eksik. Render Environment alanina ekle.")
 
-bot.run(DISCORD_TOKEN)
+bot.run(DISCORD_TOKEN) 
