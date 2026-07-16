@@ -98,7 +98,7 @@ COMMAND_MODULES = [
     voice_welcome,
     ticket_panel,
     welcome_settings,
-    kurulum
+    verify-kur 
 ]
 
 
