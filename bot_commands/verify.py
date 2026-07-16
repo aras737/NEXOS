@@ -1,126 +1,73 @@
 import discord
 from discord import app_commands
-from core.embeds import make_embed
-from core.logging import log_event
+from discord.ext import commands
 
-# --- AYARLAR ---
-# Butonlara basıp onay verecek yetkili rolün ID'si
-VERIFIER_ROLE_ID = 1389930042200559706  
-
-class VerifyDecisionView(discord.ui.View):
-    def __init__(self, target_member: discord.Member, target_role: discord.Role):
+# Butonun bot kapandığında bile çalışabilmesi için kalıcı (persistent) bir View tanımlıyoruz
+class VerifyView(discord.ui.View):
+    def __init__(self):
+        # timeout=None kalıcı olmasını sağlar
         super().__init__(timeout=None)
-        self.target_member = target_member
-        self.target_role = target_role
 
-    async def check_permissions(self, interaction: discord.Interaction) -> bool:
-        is_admin = interaction.user.guild_permissions.administrator
-        has_verifier_role = any(role.id == VERIFIER_ROLE_ID for role in interaction.user.roles)
-        if is_admin or has_verifier_role:
-            return True
-            
+    # discord.js'teki 'forces_verify_btn' custom id'sini buraya atıyoruz
+    @discord.ui.button(
+        label="Doğrula", 
+        style=discord.ButtonStyle.success, 
+        custom_id="forces_verify_btn", 
+        emoji="✅"
+    )
+    async def verify_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        """Kullanıcı butona tıkladığında tetiklenecek fonksiyon"""
+        
+        # Örnek: Kullanıcıya rol vermek isterseniz:
+        # role = interaction.guild.get_role(1527008029877207050)
+        # await interaction.user.add_roles(role)
+        
         await interaction.response.send_message(
-            embed=make_embed("Yetki Reddedildi", "Bu butonu sadece yöneticiler veya doğrulama yetkilileri kullanabilir.", 0xE74C3C),
+            "✅ Doğrulama işleminiz başarıyla tamamlandı!", 
             ephemeral=True
         )
-        return False
 
-    @discord.ui.button(label="Doğrula", style=discord.ButtonStyle.green, custom_id="btn_approve")
-    async def approve(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if not await self.check_permissions(interaction):
-            return
 
-        member = interaction.guild.get_member(self.target_member.id)
-        if not member:
-            await interaction.response.send_message(
-                embed=make_embed("Hata", "Doğrulanacak üye sunucudan ayrılmış.", 0xE74C3C),
-                ephemeral=True
-            )
-            return
+class VerifyKur(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
 
-        if self.target_role in member.roles:
-            await interaction.response.send_message(
-                embed=make_embed("Hata", "Bu kullanıcı zaten bu role sahip.", 0xE74C3C),
-                ephemeral=True
-            )
-            return
-
-        try:
-            await member.add_roles(self.target_role)
-            for child in self.children:
-                child.disabled = True
-            
-            embed = make_embed(
-                "Doğrulama Onaylandı", 
-                f"{member.mention} kullanıcısının doğrulama talebi {interaction.user.mention} tarafından **onaylandı** ve {self.target_role.mention} rolü verildi.", 
-                0x2ECC71
-            )
-            await interaction.response.edit_message(embed=embed, view=self)
-
-            await log_event(
-                interaction.guild,
-                "Manuel Doğrulama Onaylandı",
-                f"{interaction.user} doğrulama talebini onayladı.",
-                0x2ECC71,
-                [
-                    ("Onaylayan Yetkili", f"{interaction.user} ({interaction.user.id})"),
-                    ("Doğrulanan Üye", f"{member} ({member.id})"),
-                    ("Verilen Rol", f"{self.target_role.name}")
-                ]
-            )
-        except discord.Forbidden:
-            await interaction.response.send_message(
-                embed=make_embed("Hata", "Botun yetkisi bu rolü vermeye yetmiyor.", 0xE74C3C),
-                ephemeral=True
-            )
-
-    @discord.ui.button(label="Reddet", style=discord.ButtonStyle.red, custom_id="btn_reject")
-    async def reject(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if not await self.check_permissions(interaction):
-            return
-
-        for child in self.children:
-            child.disabled = True
-
-        embed = make_embed(
-            "Doğrulama Reddedildi", 
-            f"{self.target_member.mention} kullanıcısının doğrulama talebi {interaction.user.mention} tarafından **reddedildi**.", 
-            0xE74C3C
+    @app_commands.command(
+        name="verify-kur", 
+        description="Sunucu için güvenli doğrulama panelini kurar."
+    )
+    @app_commands.default_permissions(administrator=True) # Sadece Yöneticiler
+    @app_commands.guild_only() # Sadece sunucularda çalışır (DM dışı)
+    async def verify_kur(self, interaction: discord.Interaction):
+        
+        # Şık bir doğrulama embed tasarımı
+        embed = discord.Embed(
+            title="🛡️ Sunucu Doğrulama Sistemi",
+            description="Sunucudaki diğer kanallara erişim sağlamak ve topluluğumuza katılmak için aşağıdaki **Doğrula** butonuna tıklayın.",
+            color=discord.Color.from_str("#00ffcc")
         )
-        await interaction.response.edit_message(embed=embed, view=self)
-
-        await log_event(
-            interaction.guild,
-            "Manuel Doğrulama Reddedildi",
-            f"{interaction.user} doğrulama talebini reddetti.",
-            0xE74C3C,
-            [
-                ("Reddeden Yetkili", f"{interaction.user} ({interaction.user.id})"),
-                ("Hedef Üye", f"{self.target_member} ({self.target_member.id})"),
-                ("İstenen Rol", f"{self.target_role.name}")
-            ]
+        
+        # Sunucu simgesi varsa ekle
+        guild_icon = interaction.guild.icon.url if interaction.guild.icon else None
+        embed.set_footer(
+            text=f"{interaction.guild.name} Güvenlik Sistemi", 
+            icon_url=guild_icon
         )
+        embed.timestamp = interaction.created_at
 
-def register(bot):
-    @bot.tree.command(name="verify", description="Belirttiğiniz kullanıcı için onay butonlu doğrulama talebi oluşturur.")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(administrator=True)
-    @app_commands.checks.bot_has_permissions(manage_roles=True, send_messages=True, embed_links=True)
-    async def verify(interaction: discord.Interaction, uye: discord.Member, rol: discord.Role):
-        if rol in uye.roles:
-            await interaction.response.send_message(
-                embed=make_embed("Hata", "Bu kullanıcı zaten bu role sahip.", 0xE74C3C),
-                ephemeral=True
-            )
-            return
+        # Görünümü (Butonu) ekliyoruz
+        view = VerifyView()
 
-        embed = make_embed(
-            "Doğrulama Talebi",
-            f"{uye.mention} ({uye.id}) kullanıcısına {rol.mention} rolünün verilmesi için bir talep oluşturuldu.\n\n"
-            f"Lütfen aşağıdaki butonları kullanarak bu talebi onaylayın veya reddedin.",
-            0xF1C40F
+        # Komutu kullanan kişiye gizli (ephemeral) yanıt veriyoruz
+        await interaction.response.send_message(
+            "⚙️ Doğrulama paneli başarıyla oluşturuldu.", 
+            ephemeral=True
         )
-        embed.set_footer(text="Bu işlemi yalnızca Yöneticiler ve yetkilendirilmiş roller gerçekleştirebilir.")
+        
+        # Kanala embed mesajını ve butonu gönderiyoruz
+        await interaction.channel.send(embed=embed, view=view)
 
-        view = VerifyDecisionView(target_member=uye, target_role=rol)
-        await interaction.response.send_message(embed=embed, view=view)
+
+# Cog yükleme fonksiyonu
+async def setup(bot: commands.Bot):
+    await bot.add_cog(VerifyKur(bot))
