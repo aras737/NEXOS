@@ -97,8 +97,7 @@ COMMAND_MODULES = [
     music,
     voice_welcome,
     ticket_panel,
-    welcome_settings,
-    verify-kur 
+    welcome_settings
 ]
 
 
