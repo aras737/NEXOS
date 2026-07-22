@@ -13,19 +13,25 @@ def register(bot):
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.bot_has_permissions(send_messages=True, embed_links=True, manage_channels=True)
     async def ticket_panel(
-        interaction,
+        interaction: discord.Interaction,
         channel: discord.TextChannel | None = None,
-        support_role: discord.Role | None = None,
-        category: discord.CategoryChannel | None = None
+        category: discord.CategoryChannel | None = None,
+        support_role_1: discord.Role | None = None,
+        support_role_2: discord.Role | None = None,
+        support_role_3: discord.Role | None = None,
     ):
         target_channel = channel or interaction.channel
-        if support_role:
-            set_guild_setting(interaction.guild.id, "ticket_support_role_id", support_role.id)
-        if category:
-            set_guild_setting(interaction.guild.id, "ticket_category_id", category.id)
+        
+        # Seçilen rolleri bir listede topla (boş olmayanları al)
+        roles = [r for r in [support_role_1, support_role_2, support_role_3] if r is not None]
+        
+        if roles:
+            # Roller ID listesi olarak kaydedilir (Örn: [123456789, 987654321])
+            role_ids = [role.id for role in roles]
+            set_guild_setting(interaction.guild.id, "ticket_support_role_ids", role_ids)
 
         embed = make_embed(
-            "NEXOS Ticket Paneli",
+            "AETHELGARD Ticket Paneli",
             "Destek almak icin **Ticket Ac** butonuna bas. Ticketler sadece bu panelden acilir; kanal sadece ticket sahibi ve yetkililer tarafindan gorulur.",
             PANEL_COLOR
         )
@@ -34,22 +40,30 @@ def register(bot):
             value="Ustlenme, oncelik, uye ekleme/cikarma, yeniden adlandirma, bilgi, transcript ve kapatma kontrolleri otomatik gelir.",
             inline=False
         )
+        
+        # Eklenen rolleri panele yazdır
+        roles_text = ", ".join([role.mention for role in roles]) if roles else "Mevcut yetkili rol ayarlari korunur."
         embed.add_field(
-            name="Yetkili Erisimi",
-            value=support_role.mention if support_role else "Mevcut yetkili rol ayari korunur.",
+            name="Yetkili Rolleri",
+            value=roles_text,
             inline=True
         )
+        
         embed.add_field(
             name="Kategori",
             value=category.name if category else "Mevcut kategori ayari korunur.",
             inline=True
         )
         embed.set_footer(text="Diger ticket komutlari yok; tum ticket islemleri panel ve kanal kontrollerinden yapilir.")
+        
         await target_channel.send(embed=embed, view=TicketPanelView())
+        
         await interaction.response.send_message(
             embed=make_embed("Ticket Paneli Gonderildi", f"Panel {target_channel.mention} kanalina gonderildi.", 0x2ECC71),
             ephemeral=True
         )
+        
+        log_roles_text = ", ".join([f"{role.name} ({role.id})" for role in roles]) if roles else "Degismedi"
         await log_event(
             interaction.guild,
             "Ticket Paneli Gonderildi",
@@ -57,7 +71,7 @@ def register(bot):
             0x2ECC71,
             [
                 ("Yetkili", f"{interaction.user} ({interaction.user.id})"),
-                ("Destek Rolu", support_role.mention if support_role else "Degismedi"),
+                ("Destek Rolleri", log_roles_text),
                 ("Kategori", category.name if category else "Degismedi")
             ]
         )
